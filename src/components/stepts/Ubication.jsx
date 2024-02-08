@@ -32,16 +32,20 @@ export const Ubication = (props) => {
   const locationDefault = position
   
   return (
-<div style={{margin: 0, padding: 0, width: "80vw", height: "100vh"}}>
+<div>
+  <h2 className="m-2">
+    Confirmar ubicación
+  </h2>
+
   {locationSelection === undefined ?
   (<MapContainer 
-  
+    style={{width:"100%" }}
      center={position} 
-    zoom={13} 
+    zoom={16} 
     scrollWheelZoom={true}
     minZoom={3}
     maxZoom={19}
-    maxBounds={[[-85.06, -180], [85.06, 180]]} 
+    maxBounds={[[-85.06, -180], [85.06, 180]]}
   
   
   > 
@@ -61,9 +65,9 @@ export const Ubication = (props) => {
   </MapContainer>) : 
   (
     <MapContainer 
-  
+  style={{width:"100%" }}
      center={selectPosition} 
-    zoom={18} 
+    zoom={15} 
     scrollWheelZoom={true}
     minZoom={5}
     maxZoom={19}

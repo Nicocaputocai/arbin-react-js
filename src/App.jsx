@@ -25,7 +25,8 @@ function App() {
     "Foto de la hoja",
     "Seleccionar arbol",
     "Foto del perfil",
-    "Estado"
+    "Estado",
+    "Finalizar"
   ]
   const displayStep = (step) =>{
     switch(step){

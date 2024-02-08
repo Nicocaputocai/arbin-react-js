@@ -13,9 +13,9 @@ export const Address = (props) => {
   return (
     <div className="flex flex-col">
       <div className="w-full mx-2 flex-1">
-        <div className="font-bold h-6 mt-3 text-gray-500 text-xs leading-8 uppercase">
+        <h2 className="font-bold h-6 mt-3 text-gray-500 text-xs leading-8 uppercase">
           Dirección
-        </div>
+        </h2>
         <div className="bg-white my-2 p-1 flex border border-gray-200">
           <input
             type="text"
@@ -59,14 +59,14 @@ export const Address = (props) => {
           </button>
         </div>
         <div>
-          <ul className="list-none">
+          <ul role="list" className="list-none">
             {listPlace.map((item) => (
               <li key={item?.place_id}>
                  <button
             onClick={() => {
               setSelectPosition(item ? item : null);
             }}
-            className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-gray-500"
+            className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-gray-500 focus:outline-none focus:ring focus:ring-green-800 m-1"
           >
             {item?.display_name}
           </button>
