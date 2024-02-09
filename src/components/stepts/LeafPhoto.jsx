@@ -1,9 +1,10 @@
+import { Container, Form } from "react-bootstrap";
 import React, { useState } from "react";
-const leafExample = "c/LeafExample.jpg"
-const NOMINATIM_BASE_URL = " http://arbolado-ilfqxfroaq-uc.a.run.app/predict_knn_clip";
+const leafExample = "./LeafExample.jpg"
+const NOMINATIM_BASE_URL = "http://arbolado-ilfqxfroaq-uc.a.run.app/predict_image";
 export const LeafPhoto = () => {
   const [selectedImage, setSelectedImage] = useState(); // Vista previa de la imagen
-  const [searchText, setSearchText] = useState("");
+
   const [listPlace, setListPlace] = useState([]);
   const handleInputFileChange = (e) => {
     //Vista previa de la foto
@@ -11,23 +12,7 @@ export const LeafPhoto = () => {
       setSelectedImage(e.target.files[0]);
     }
   };
-  const handleSubmit = async event => {
-    event.preventDefault();
-    try {
-        await fetch(` ${NOMINATIM_BASE_URL}`, {
-            method: 'post',
-           
-        })
-        .then((response) => response.text())
-        .then((result) => {
-          console.log(JSON.parse(result));
-          setListPlace(JSON.parse(result));
-        })
-            .catch(err => console.log(err));
-    } catch (error) {
-        console.log(error);
-    }
-};
+
   return (
     <div>
       <h2>Sacar foto de la hoja</h2>
@@ -45,35 +30,19 @@ export const LeafPhoto = () => {
             type="file"
             name="file"
             onChange={handleInputFileChange}
-    //         className="block w-full text-sm text-slate-500
-    //   file:mr-4 file:py-2 file:px-4
-    //   file:rounded-full file:border-0
-    //   file:text-sm file:font-semibold
-    //   file:bg-violet-50 file:text-violet-700
-    //   hover:file:bg-violet-100
-    // "
+            className="block w-full text-sm text-slate-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-violet-50 file:text-violet-700
+      hover:file:bg-violet-100 m-2
+    "
           />
-          {/* {selectedImage && (
-              <div
-                style={{
-                  marginTop: 50,
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <image
-                  style={{ maxWidth: "100%", maxHeight: 320 }}
-                  src={selectedImage}
-                  alt="Thumb"
-                />
-              </div>
-            )} */}
 
           <div className="flex items-center">
             <button
               className="bg-green-500 text-white px-4 py-2 rounded mr-4"
               style={{ flex: 1 }}
-              // onClick={handleSubmit}
               onClick={(e) => {
                 e.preventDefault()
                 const formData = new FormData();
@@ -90,8 +59,9 @@ export const LeafPhoto = () => {
                 fetch(`${NOMINATIM_BASE_URL}`, requestOptions)
                   .then((response) => response.text())
                   .then((result) => {
-                    console.log(selectedImage);
+                    // console.log(selectedImage);
                     console.log(JSON.parse(result));
+                    // console.log(typeof listPlace)
                     setListPlace(JSON.parse(result));
                   })
                   .catch((err) => console.log("err: ", err));
@@ -102,6 +72,37 @@ export const LeafPhoto = () => {
           </div>
         </label>
       </form>
+      <Container>
+  <h1 className="mt-3">Seleccionar qué árbol corresponde</h1>
+  <Form>
+    {Object.values(listPlace).map((array, index) => {
+      const filteredArray = array.filter(item => item[1] > 0.2);
+      const uniqueTreeNames = new Set();
+      const renderedElements = [];
+      let renderedCount = 0;
+      for (const item of filteredArray) {
+        if (!uniqueTreeNames.has(item[0]) && renderedCount < 6) {
+          uniqueTreeNames.add(item[0]);
+          renderedElements.push(item);
+          renderedCount++;
+        }
+      }
+      return renderedElements.map((item, subIndex) => (
+        <Form.Check 
+          type="radio"
+          id={`${item[0]}-${index}-${subIndex}`}
+          label={`${item[0]}`}
+          name="tree"
+          key={`${item[0]}-${index}-${subIndex}`}
+        />
+      ));
+    }).flat()}
+  </Form>
+</Container>
+
+     
+    
+
     </div>
   );
 };

@@ -8,7 +8,8 @@ import { LeafPhoto } from './components/stepts/LeafPhoto'
 import { ProfilePhoto } from './components/stepts/ProfilePhoto'
 import { Status } from './components/stepts/Status'
 import { StrepperContext } from './components/contexts/StepperContext'
-import { TreeOptions } from './components/stepts/TreeOptions'
+import { Finish } from './components/stepts/finish'
+
 
 const position = [-34.7033363, -58.3953235];
 
@@ -23,7 +24,6 @@ function App() {
     "Dirección",
     "Ubicación",
     "Foto de la hoja",
-    "Seleccionar arbol",
     "Foto del perfil",
     "Estado",
     "Finalizar"
@@ -33,9 +33,9 @@ function App() {
       case 1: return <Address  selectPosition={selectPosition} setSelectPosition={setSelectPosition} />;
       case 2: return <Ubication selectPosition={selectPosition} />;
       case 3: return <LeafPhoto />
-      case 4: return <TreeOptions />
-      case 5: return <ProfilePhoto />
-      case 6: return <Status />
+      case 4: return <ProfilePhoto />
+      case 5: return <Status />
+      case 6: return <Finish />
 
     }
   }
