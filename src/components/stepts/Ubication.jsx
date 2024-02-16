@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet"
 import L from 'leaflet'
 import '../../../node_modules/leaflet/dist/leaflet.css';
-import { Address } from "./Address";
 
 const position =[-34.7033363,-58.3953235]
 

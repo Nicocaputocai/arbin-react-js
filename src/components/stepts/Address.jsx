@@ -3,8 +3,13 @@ const NOMINATIM_BASE_URL = "http://nominatim.openstreetmap.org/search?";
 
 export const Address = (props) => {
   const [searchText, setSearchText] = useState("");
-  const { setSelectPosition } = props;
+  const { selectPosition, setSelectPosition } = props;
   const [listPlace, setListPlace] = useState([]);
+
+  const validateAddress = () => {
+    const isValid = searchText.trim() !== '';
+    props.handleFormValidityChange(isValid);
+  }
 
   // const handleChange= (e) =>{
   //   const {name, value} = e.target;
@@ -65,6 +70,7 @@ export const Address = (props) => {
                  <button
             onClick={() => {
               setSelectPosition(item ? item : null);
+              validateAddress()
             }}
             className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-gray-500 focus:outline-none focus:ring focus:ring-green-800 m-1"
           >
