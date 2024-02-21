@@ -58,7 +58,7 @@ export const Stepper = ({steps, currentStep}) => {
   const displayStep = newStep.map((step, index) => {
     return (
       <div  key={index} className={index !== newStep.lenght -1 ?"w-full items-center flex" :"flex items-center"}>
-        <div className="relative flex flex-col items-center text-teal-600">
+        <div className="relative flex flex-col items-center text-teal-600 hidden  md:block">
           <div className={`rounded-full transition duration-500 ease-in-out border-2 border-gray-300 h-12 w-12 flex items-center justify-center py-3 ${step.selected ? "bg-green-600 text-white font-bold border border-green-600":""}`}>
             {step.completed ? (<span className="text-white font-bold text-xl">&#10003;</span>):(index + 1)}
           </div>

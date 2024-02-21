@@ -31,14 +31,14 @@ export const Ubication = (props) => {
   const locationDefault = position
   
   return (
-<div>
+<div >
   <h2 className="m-2">
     Confirmar ubicación
   </h2>
-
+<div style={{width: "70vw", height: "20 hv", alignItem:"center" }}>
   {locationSelection === undefined ?
   (<MapContainer 
-    style={{width:"100%" }}
+    style={{ height: "20 hv" }}
      center={position} 
     zoom={16} 
     scrollWheelZoom={true}
@@ -91,6 +91,7 @@ export const Ubication = (props) => {
   </MapContainer>
   )
   }
+  </div>
   </div>
   )
 }

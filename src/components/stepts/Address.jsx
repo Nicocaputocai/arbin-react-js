@@ -3,18 +3,21 @@ const NOMINATIM_BASE_URL = "http://nominatim.openstreetmap.org/search?";
 
 export const Address = (props) => {
   const [searchText, setSearchText] = useState("");
-  const { selectPosition, setSelectPosition } = props;
+  const { setSelectPosition, handleFormValidityChange } = props;
   const [listPlace, setListPlace] = useState([]);
+  
+  
 
   const validateAddress = () => {
-    const isValid = searchText.trim() !== '';
-    props.handleFormValidityChange(isValid);
+    const isValid = listPlace !== ''; // Validación básica: asegúrate de que el campo no esté vacío
+    handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
   }
 
-  // const handleChange= (e) =>{
-  //   const {name, value} = e.target;
-  //   setAddressData({...addressData, [name]:value})
-  // }
+  const handleChange = (event) => {
+    setSearchText(event.target.value);
+    validateAddress();
+  }
+
   return (
     <div className="flex flex-col">
       <div className="w-full mx-2 flex-1">
@@ -25,11 +28,12 @@ export const Address = (props) => {
           <input
             type="text"
             name="address"
-            onChange={(event) => {
-              setSearchText(event.target.value);
+            // onChange={(event) => {
+            //   setSearchText(event.target.value);
 
-              // console.log(event.target.value);
-            }}
+            //   // console.log(event.target.value);
+            // }}
+            onChange={handleChange}
             value={searchText}
             className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
           />
