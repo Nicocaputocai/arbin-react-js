@@ -114,7 +114,7 @@ const latlng = `${lng}, ${lat}`
     <Form.Group className='m-2'>
       <Form.Label >
       <h3>Foto de la hoja:</h3> 
-      {fotoHoja && <Image src={fotoPerfil} alt="Foto de la hoja" style={{width:"50vw", height:"50vh"}}/>}
+      {fotoHoja && <Image src={fotoPerfil} alt="Foto de la hoja" />}
       </Form.Label> 
     </Form.Group>
 

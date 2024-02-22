@@ -1,22 +1,27 @@
 import { useState } from "react";
 import { Container, Form } from "react-bootstrap";
 
-export const Status = () => {
-
-  const [StatusformData, setStatusFormData] = useState({
-    estadoGeneral: '',
-    peligroCaida: '',
-    inclinacion: '',
-    diametroCm: ''
+export const Status = (props ) => {
+  const { handleFormValidityChange, handleFormSubmit } = props;
+  const [statusformData, setStatusFormData] = useState({
+    generalStatus: '',
+    fallingDanger: '',
+    inclination: '',
+    diameter: ''
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setStatusFormData({
-      ...StatusformData,
+      ...statusformData,
       [name]: value
     });
+    
+    if (typeof handleFormSubmit === 'function') {
+      handleFormSubmit(statusformData); // Llama a la función handleFormSubmit con los datos actualizados del formulario
+    }
   };
+
 
   return (
     <div>
@@ -24,8 +29,9 @@ export const Status = () => {
         <h2>Estado del árbol</h2>
         <Form>
           <Form.Label className="m-3">Estado general</Form.Label> <br />
-          <Form.Select aria-label="Default select example"        
-          value={StatusformData.estadoGeneral}
+          <Form.Select aria-label="Default select example"  
+          name="generalStatus"      
+          value={statusformData.generalStatus}
           onChange={handleInputChange}>
             <option disabled>Seleccione una opción</option>
             <option value="1">1</option>
@@ -37,11 +43,12 @@ export const Status = () => {
           <br />
           <Form.Label className="m-3">Peligro de caida</Form.Label> <br />
           <Form.Select aria-label="Default select example"
-                  value={StatusformData.peligroCaida}
+                name="fallingDanger"
+                  value={statusformData.fallingDanger}
                   onChange={handleInputChange}>
             <option disabled>Seleccione una opción</option>
-            <option value={1}>Si</option>
-            <option value={0}>No</option>
+            <option value={true}>Si</option>
+            <option value={false}>No</option>
           </Form.Select>{" "}
           <br />
 
@@ -49,8 +56,8 @@ export const Status = () => {
           <div className="bg-white my-2 p-1 flex border border-gray-200">
             <input
               type="text"
-              name="inclinacion"
-              value={StatusformData.inclinacion}
+              name="inclination"
+              value={statusformData.inclination}
               onChange={handleInputChange}
               className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
             />
@@ -59,8 +66,8 @@ export const Status = () => {
           <div className="bg-white my-2 p-1 flex border border-gray-200">
             <input
               type="text"
-              name="diametroCm"
-              value={StatusformData.diametroCm}
+              name="diameter"
+              value={statusformData.diameter}
               onChange={handleInputChange}
               className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
             />

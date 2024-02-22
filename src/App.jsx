@@ -41,15 +41,15 @@ function App() {
   const displayStep = (step) => {
     switch (step) {
       case 1: return <Address selectPosition={selectPosition} setSelectPosition={setSelectPosition} handleFormValidityChange={handleFormValidityChange} />;
-      case 2: return <Ubication selectPosition={selectPosition} handleFormValidityChange={handleFormValidityChange}  />;
+      case 2: return <Ubication selectPosition={selectPosition} setSelectPosition={setSelectPosition} handleFormValidityChange={handleFormValidityChange}  />;
       case 3: return <LeafPhoto handleFormValidityChange={handleFormValidityChange} Checkbox={Checkbox} setCheckbox={setCheckbox} setfotoHoja={setfotoHoja}  fotoHoja={fotoHoja}/>
       case 4: return <ProfilePhoto handleFormValidityChange={handleFormValidityChange} fotoPerfil={fotoPerfil}  setFotoPerfil={setFotoPerfil} />
-      case 5: return <Status handleFormValidityChange={handleFormValidityChange}  onSubmit={handleFormSubmit}/>
+      case 5: return <Status handleFormValidityChange={handleFormValidityChange} handleFormSubmit={handleFormSubmit}/>
       case 6:  
-       return < Finish selectPosition={selectPosition} Checkbox={Checkbox} fotoHoja={fotoHoja} fotoPerfil={fotoPerfil}  formData={formData}/>;
+      return <Finish selectPosition={selectPosition} Checkbox={Checkbox} fotoHoja={fotoHoja} fotoPerfil={fotoPerfil} formData={formData}/>;
     };
   }
-
+  console.log(formData)
   const handleClick = (direction) => {
     let newStep = currentStep
     direction === "Siguiente" && formValid ==! "" ? newStep++ : newStep--;

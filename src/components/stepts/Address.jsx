@@ -3,10 +3,16 @@ const NOMINATIM_BASE_URL = "http://nominatim.openstreetmap.org/search?";
 
 export const Address = (props) => {
   const [searchText, setSearchText] = useState("");
-  const { setSelectPosition, handleFormValidityChange } = props;
+  const { selectPosition ,setSelectPosition, handleFormValidityChange } = props;
   const [listPlace, setListPlace] = useState([]);
+
+
+  const street = selectPosition?.address.road
+  const houeseNumber = selectPosition?.address.house_number
   
-  
+
+  const neighbourhood =selectPosition?.address.neighbourhood
+  const address = `${street} ${houeseNumber}, ${neighbourhood}`
 
   const validateAddress = () => {
     const isValid = listPlace !== ''; // Validación básica: asegúrate de que el campo no esté vacío
@@ -60,6 +66,7 @@ export const Address = (props) => {
                 .then((result) => {
                   // console.log(JSON.parse(result));
                   setListPlace(JSON.parse(result));
+                  
                 })
                 .catch((err) => console.log("err: ", err));
             }}
@@ -75,10 +82,11 @@ export const Address = (props) => {
             onClick={() => {
               setSelectPosition(item ? item : null);
               validateAddress()
+              
             }}
             className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-gray-500 focus:outline-none focus:ring focus:ring-green-800 m-1"
           >
-            {item?.display_name}
+            {`${item?.address.road!== undefined ? item?.address.road : ""} ${item?.address.house_number !== undefined ? item?.address.house_number :""}${item.address.houeseNumber =!! undefined || item?.address.road !== undefined ? "," : ""} ${item?.address.neighbourhood !== undefined ? item?.address.neighbourhood +"," :""} ${item?.address.city!== undefined ? item?.address.city  +"," :""} ${item?.address.town !== undefined ? item?.address.town :""}  ${item?.address.town !== undefined ? "," : ""} ${item?.address.state !== undefined ? item?.address.state  +"," :""} ${item?.address.country !== undefined ? item?.address.country :""}`}
           </button>
               </li>
             ))}

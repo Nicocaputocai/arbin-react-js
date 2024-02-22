@@ -31,7 +31,7 @@ export const Ubication = (props) => {
   const locationDefault = position
   
   return (
-<div >
+<div className="map-container">
   <h2 className="m-2">
     Confirmar ubicación
   </h2>
