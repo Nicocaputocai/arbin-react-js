@@ -12,13 +12,13 @@ export const Status = (props ) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setStatusFormData({
-      ...statusformData,
+    setStatusFormData((prevFormData) =>({
+      ...prevFormData,
       [name]: value
-    });
+    }));
     
     if (typeof handleFormSubmit === 'function') {
-      handleFormSubmit(statusformData); // Llama a la función handleFormSubmit con los datos actualizados del formulario
+      handleFormSubmit({...statusformData, [name]: value}); // Llama a la función handleFormSubmit con los datos actualizados del formulario
     }
   };
 
@@ -26,29 +26,31 @@ export const Status = (props ) => {
   return (
     <div>
       <Container>
-        <h2>Estado del árbol</h2>
+        <h1>Estado del árbol</h1>
         <Form>
-          <Form.Label className="m-3">Estado general</Form.Label> <br />
-          <Form.Select aria-label="Default select example"  
+          
+          <Form.Label className="m-4">Estado general</Form.Label> <br />
+          <Form.Select aria-label="Seleccione una opción"  
           name="generalStatus"      
           value={statusformData.generalStatus}
-          onChange={handleInputChange}>
-            <option disabled>Seleccione una opción</option>
-            <option value="1">1</option>
+          onChange={handleInputChange}
+          style={{ariaLabel:"Seleccione una opción"}}>
+            <option value="" disabled>Seleccione una opción</option>
+            <option  value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
-            <option value="5">5</option>
+            <option   value="5">5</option>
           </Form.Select>{" "}
           <br />
-          <Form.Label className="m-3">Peligro de caida</Form.Label> <br />
-          <Form.Select aria-label="Default select example"
+          <Form.Label className="m-4">Peligro de caida</Form.Label> <br />
+          <Form.Select aria-label="Seleccione una opción"  
                 name="fallingDanger"
                   value={statusformData.fallingDanger}
                   onChange={handleInputChange}>
-            <option disabled>Seleccione una opción</option>
-            <option value={true}>Si</option>
+            <option value="" disabled>Seleccione una opción</option>
             <option value={false}>No</option>
+            <option value={true}>Si</option>
           </Form.Select>{" "}
           <br />
 
@@ -60,6 +62,7 @@ export const Status = (props ) => {
               value={statusformData.inclination}
               onChange={handleInputChange}
               className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
+              placeholder="Solo números"
             />
           </div>
           <Form.Label>Diámetro en cm</Form.Label>
@@ -70,6 +73,7 @@ export const Status = (props ) => {
               value={statusformData.diameter}
               onChange={handleInputChange}
               className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
+              placeholder="Solo números"
             />
           </div>
                   </Form>

@@ -166,10 +166,10 @@ export const LeafPhoto = (props) => {
                 <Form.Check
                   type="radio"
                   id={`${item[0]}-${index}-${subIndex}`}
-                  label={`${item[0]}`}
+                  label={`${item[0][1]}`}
                   name="tree"
                   key={`${item[0]}-${index}-${subIndex}`}
-                  value={item[0]}
+                  value={item[0][0]}
                   // checked={selectedCheckbox === `${item[0]}`} // Comprueba si este checkbox está seleccionado
                   onChange={handleCheckboxChange} // Maneja el cambio de estado del checkbox
                 />

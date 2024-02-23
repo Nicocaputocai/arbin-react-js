@@ -22,9 +22,9 @@ function App() {
   const [Checkbox, setCheckbox] = useState(null);
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null)
-  const [formData, setFormData] = useState(null);
+  const [formStatus, setFormStatus] = useState(null);
   const handleFormSubmit = (data) => {
-    setFormData(data);
+    setFormStatus(data);
   };
 
   const steps = [
@@ -36,6 +36,7 @@ function App() {
     "Finalizar"
   ];
 
+
   // Función para manejar el cambio en la validez del formulario
 
   const displayStep = (step) => {
@@ -46,19 +47,48 @@ function App() {
       case 4: return <ProfilePhoto handleFormValidityChange={handleFormValidityChange} fotoPerfil={fotoPerfil}  setFotoPerfil={setFotoPerfil} />
       case 5: return <Status handleFormValidityChange={handleFormValidityChange} handleFormSubmit={handleFormSubmit}/>
       case 6:  
-      return <Finish selectPosition={selectPosition} Checkbox={Checkbox} fotoHoja={fotoHoja} fotoPerfil={fotoPerfil} formData={formData}/>;
+      return <Finish selectPosition={selectPosition} Checkbox={Checkbox} fotoHoja={fotoHoja} fotoPerfil={fotoPerfil} formStatus={formStatus}/>;
     };
   }
-  console.log(formData)
-  const handleClick = (direction) => {
-    let newStep = currentStep
-    direction === "Siguiente" && formValid ==! "" ? newStep++ : newStep--;
-    newStep > 0 && newStep <= steps.length && setCurrentStep(newStep);
+
+  const enviarFormulario = () => {
+    // Aquí puedes agregar la lógica para enviar el formulario
+    alert("¡El formulario ha sido enviado!");
+    // Puedes acceder a los datos finales del formulario desde finalData si lo necesitas
   };
+  // const handleClick = (direction) => {
+  //   let newStep = currentStep
+  //   direction === "Siguiente" && formValid ==! "" ? newStep++ : newStep--;
+    
+  //   newStep > 0 && newStep <= steps.length && setCurrentStep(newStep);
+  // };
+  const handleClick = (direction) => {
+    let newStep = currentStep;
+  
+    // Verificar si el usuario intenta avanzar
+    if (direction === "Siguiente" && formValid !== false) {
+      newStep++;
+    } else {
+      newStep--;
+    }
+  
+    // Verificar si se llega al último paso y la dirección es "Siguiente"
+    if (currentStep === steps.length && direction === "Siguiente") {
+      // Lógica para enviar el formulario
+      enviarFormulario(); // Esta es la función para enviar el formulario
+    } else {
+      // Asegurarse de que el nuevo paso esté dentro del rango de pasos
+      if (newStep > 0 && newStep <= steps.length) {
+        setCurrentStep(newStep);
+      }
+    }
+  };
+  
 
   const handleFormValidityChange = (isValid) => {
     setFormValid(isValid);
   }
+
 
   return (
     <div className='md:w1-/2 mx-auto shadow-xl rounded-2xl pb-2 bg-white '>
@@ -89,6 +119,7 @@ function App() {
           currentStep={currentStep}
           steps={steps}
           formValid={formValid}
+          enviarFormulario={enviarFormulario} 
         />
       </div>
     </div>

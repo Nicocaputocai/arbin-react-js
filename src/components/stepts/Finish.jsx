@@ -3,8 +3,8 @@ import CensusTreesServices from '../../Services/CensusTreeService';
 import { Form, Image } from 'react-bootstrap';
 
 export const Finish = (props) => {
-  const { selectPosition, Checkbox, fotoHoja, fotoPerfil, formData} = props;
-  console.log(formData);
+  const { selectPosition, Checkbox, fotoHoja, fotoPerfil, formStatus} = props;
+
   const street = selectPosition?.address.road
 const houeseNumber = selectPosition?.address.house_number
 
@@ -81,27 +81,32 @@ const latlng = `${lng}, ${lat}`
     <div>
     <Form>
       <Form.Group  className='m-2'>
+
       <Form.Label >
+
       <h3>Dirección:</h3> 
-      {address}
+      <input value={address} type="text" />
+      {/* {address}
+      </input> */}
       </Form.Label> 
       </Form.Group> 
       <Form.Group  className='m-2'>
-      <Form.Label className='m-2'>
+      <Form.Label >
       <h3>Coordenadas:</h3>
-        {latlng}
+        {/* {latlng} */}
+        <input value={latlng} type="text" />
       </Form.Label> 
       </Form.Group>
       <Form.Group  className='m-2'>
       <Form.Label >
       <h3>Barrio:</h3> 
-      {neighbourhood}
+     <input type="text"value= {neighbourhood} />
       </Form.Label> 
       </Form.Group> 
       <Form.Group className='m-2'>
       <Form.Label >
       <h3>Arbol censado:</h3> 
-        {Checkbox}
+<input type="text" value={Checkbox} />
       </Form.Label> 
     </Form.Group>
     <Form.Group className='m-2'>
@@ -114,9 +119,34 @@ const latlng = `${lng}, ${lat}`
     <Form.Group className='m-2'>
       <Form.Label >
       <h3>Foto de la hoja:</h3> 
-      {fotoHoja && <Image src={fotoPerfil} alt="Foto de la hoja" />}
+      {fotoPerfil && <Image src={fotoPerfil} alt="Foto de la hoja" />}
       </Form.Label> 
     </Form.Group>
+    <Form.Group  className='m-2'>
+      <Form.Label >
+      <h3>Estado General:</h3> 
+      <input type="text" value={formStatus?.generalStatus}/>
+      </Form.Label> 
+      </Form.Group> 
+      <Form.Group  className='m-2'>
+      <Form.Label >
+      <h3>Peligro de caida:</h3> 
+      <input type="boolean" value={formStatus?.fallingDanger}/>
+      </Form.Label> 
+      </Form.Group> 
+      <Form.Group  className='m-2'>
+      <Form.Label >
+      <h3>Inclinación:</h3> 
+      <input type="text" value={formStatus?.fallingDanger}/>
+      </Form.Label> 
+      </Form.Group> 
+      <Form.Group  className='m-2'>
+      <Form.Label >
+      <input type="text" value={formStatus?.diameter}/>
+      <h3>Diámetro:</h3> 
+      </Form.Label> 
+      </Form.Group> 
+      
 
     </Form>
     </div>
