@@ -1,4 +1,4 @@
-import { Container, Form } from "react-bootstrap";
+import { Button, Container, Form } from "react-bootstrap";
 import React, { useState } from "react";
 const leafExample = "./LeafExample.jpg";
 const NOMINATIM_BASE_URL ="https://arbin-ia.divisioncode.net.ar/predict_image";
@@ -22,6 +22,7 @@ export const LeafPhoto = (props) => {
   const handleCheckboxChange = (event) => {
     setSelectedCheckbox(event.target.value);
     setCheckbox(event.target.value)
+    console.log(Checkbox);
     validateAddress();
   };
 
@@ -66,6 +67,7 @@ export const LeafPhoto = (props) => {
       }
 
       const result = await response.json();
+      
       setListPlace(result);
       console.log(result);
     } catch (error) {
@@ -79,8 +81,8 @@ export const LeafPhoto = (props) => {
   return (
     <div style= {{alignItems:"center", textAlign: "center"}}>
       <h2>Sacar foto de la hoja</h2>
-      <form className="flex items-center space-x-6">
-        <div className="shrink-0">
+      <Form >
+        <div >
           <img
             className="h-16 w-16 object-cover rounded-full"
             src={leafExample}
@@ -103,17 +105,17 @@ export const LeafPhoto = (props) => {
     style={{width: 100, height: "20 hv"}}
           />
         </label>
-          <div style={{width: "15vw", height: "30 hv", alignItem:"center" }}>
+          <div >
 
-            <img src={showImage}     />{" "}
+            <img style={{maxWidth:"30vw", maxHeight:'50vh'}} src={showImage}     />{" "}
             {/* Mostrar la vista previa de la foto */}
           </div>
 
-          <div className="flex items-center">
-          <button
+          <div> 
+          <Button
             onClick={handleSearch}
-            className="bg-green-500 text-white px-4 py-2 rounded mr-4"
-            style={{ flex: 1 }}
+            variant="outline-success"
+
             disabled={isLoading || handleSearch == ""} // Deshabilita el botón mientras se está cargando
           >
             {isLoading ? (
@@ -140,10 +142,10 @@ export const LeafPhoto = (props) => {
             ) : (
               "Buscar"
             )}
-          </button>
+          </Button>
         </div>
 
-      </form>
+      </Form>
       <Container>
         <h1 className="mt-3">Seleccionar qué árbol corresponde</h1>
         <Form>
@@ -171,14 +173,23 @@ export const LeafPhoto = (props) => {
                   key={`${item[0]}-${index}-${subIndex}`}
                   value={item[0][0]}
                   // checked={selectedCheckbox === `${item[0]}`} // Comprueba si este checkbox está seleccionado
-                  onChange={handleCheckboxChange} // Maneja el cambio de estado del checkbox
+                  onChange={handleCheckboxChange
+                  
+                  } // Maneja el cambio de estado del checkbox
                 />
               ));
               }
             })
             .flat()
-            
+
             }
+          <Form.Check 
+           name="otro"
+           type="radio"
+           label="Otra"
+           key="otro"
+           value="otro"
+           />
         </Form>
       </Container>
     </div>

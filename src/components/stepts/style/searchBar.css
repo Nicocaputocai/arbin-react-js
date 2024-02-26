@@ -1,0 +1,49 @@
+.box{
+
+	width: 500px;
+
+	height: 50px;
+
+	background-color: white;
+
+	border-radius: 30px;
+
+	display: flex;
+
+	align-items: center;
+
+	padding: 20px;
+
+}
+
+.box > i {
+
+	font-size: 20px;
+
+	color: #777;
+
+    margin: 10px;
+
+}
+
+.box > input{
+
+	flex: 1;
+
+	height: 40px;
+
+	outline: none;
+
+	font-size: 18px;
+
+
+
+    max-width: fit-content;
+    
+    border: 4px solid black;
+
+    border-radius: 10px;
+
+    border-style: inset;
+
+}

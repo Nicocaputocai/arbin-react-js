@@ -1,28 +1,21 @@
 import React, { useContext, useState } from "react";
+import { Button } from "react-bootstrap";
 const NOMINATIM_BASE_URL = "http://nominatim.openstreetmap.org/search?";
-
+import './style/searchBar.css'
 export const Address = (props) => {
   const [searchText, setSearchText] = useState("");
-  const { selectPosition ,setSelectPosition, handleFormValidityChange } = props;
+  const { selectPosition, setSelectPosition, handleFormValidityChange } = props;
   const [listPlace, setListPlace] = useState([]);
 
-
-  const street = selectPosition?.address.road
-  const houeseNumber = selectPosition?.address.house_number
-  
-
-  const neighbourhood =selectPosition?.address.neighbourhood
-  const address = `${street} ${houeseNumber}, ${neighbourhood}`
-
   const validateAddress = () => {
-    const isValid = listPlace !== ''; // Validación básica: asegúrate de que el campo no esté vacío
+    const isValid = selectPosition !== null; // Validación básica: asegúrate de que el campo no esté vacío
     handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
-  }
+  };
 
   const handleChange = (event) => {
     setSearchText(event.target.value);
     validateAddress();
-  }
+  };
 
   return (
     <div className="flex flex-col">
@@ -30,7 +23,7 @@ export const Address = (props) => {
         <h2 className="font-bold h-6 mt-3 text-gray-500 text-xs leading-8 uppercase">
           Dirección
         </h2>
-        <div className="bg-white my-2 p-1 flex border border-gray-200">
+        <div className="box items-center" style={{maxWidth: 'fit-content', marginLeft: 'auto', marginRight:"auto", borderStyle:"inset"}}>
           <input
             type="text"
             name="address"
@@ -43,12 +36,7 @@ export const Address = (props) => {
             value={searchText}
             className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
           />
-        </div>
-        <div className="flex items-center">
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded mr-4"
-            style={{ flex: 1 }}
-            onClick={() => {
+         <Button variant="outline-success" onClick={() => {
               // Search
               const params = {
                 q: searchText,
@@ -66,28 +54,55 @@ export const Address = (props) => {
                 .then((result) => {
                   // console.log(JSON.parse(result));
                   setListPlace(JSON.parse(result));
-                  
                 })
                 .catch((err) => console.log("err: ", err));
-            }}
-          >
-            Success
-          </button>
+            }}>  <i className="fa fa-search" aria-hidden="true"></i></Button>
+        </div>
+        <div className=" flex items-center">
+
         </div>
         <div>
           <ul role="list" className="list-none">
             {listPlace.map((item) => (
               <li key={item?.place_id}>
-                 <button
-            onClick={() => {
-              setSelectPosition(item ? item : null);
-              validateAddress()
-              
-            }}
-            className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-gray-500 focus:outline-none focus:ring focus:ring-green-800 m-1"
-          >
-            {`${item?.address.road!== undefined ? item?.address.road : ""} ${item?.address.house_number !== undefined ? item?.address.house_number :""}${item.address.houeseNumber =!! undefined || item?.address.road !== undefined ? "," : ""} ${item?.address.neighbourhood !== undefined ? item?.address.neighbourhood +"," :""} ${item?.address.city!== undefined ? item?.address.city  +"," :""} ${item?.address.town !== undefined ? item?.address.town :""}  ${item?.address.town !== undefined ? "," : ""} ${item?.address.state !== undefined ? item?.address.state  +"," :""} ${item?.address.country !== undefined ? item?.address.country :""}`}
-          </button>
+                <Button
+                   style={{marginBottom: "3"}}
+                  active={selectPosition === item}
+                  variant="outline-dark"
+                  onClick={() => {
+                    setSelectPosition(item ? item : null);
+                    validateAddress();
+                  }}
+                >
+                  {`${
+                    item?.address.road !== undefined ? item?.address.road : ""
+                  } ${
+                    item?.address.house_number !== undefined
+                      ? item?.address.house_number
+                      : ""
+                  }${(item.address.houeseNumber =
+                    !!undefined || item?.address.road !== undefined
+                      ? ","
+                      : "")} ${
+                    item?.address.neighbourhood !== undefined
+                      ? item?.address.neighbourhood + ","
+                      : ""
+                  } ${
+                    item?.address.city !== undefined
+                      ? item?.address.city + ","
+                      : ""
+                  } ${
+                    item?.address.town !== undefined ? item?.address.town : ""
+                  }  ${item?.address.town !== undefined ? "," : ""} ${
+                    item?.address.state !== undefined
+                      ? item?.address.state + ","
+                      : ""
+                  } ${
+                    item?.address.country !== undefined
+                      ? item?.address.country
+                      : ""
+                  }`}
+                </Button>
               </li>
             ))}
           </ul>

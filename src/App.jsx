@@ -9,7 +9,11 @@ import { ProfilePhoto } from './components/stepts/ProfilePhoto'
 import { Status } from './components/stepts/Status'
 import { StrepperContext } from './components/contexts/StepperContext'
 import { Finish } from './components/stepts/Finish'
-
+import { Container } from 'react-bootstrap'
+{
+  /* The following line can be included in your src/index.js or App.js file */
+}
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const position = [-34.7033363, -58.3953235];
 
@@ -91,8 +95,8 @@ function App() {
 
 
   return (
-    <div className='md:w1-/2 mx-auto shadow-xl rounded-2xl pb-2 bg-white '>
-      <div className='container horizontal mt-5'>
+    <Container>
+      <div className='mt-5'>
         <Stepper
           steps={steps}
           currentStep={currentStep}
@@ -122,7 +126,7 @@ function App() {
           enviarFormulario={enviarFormulario} 
         />
       </div>
-    </div>
+    </Container>
   );
 }
 
