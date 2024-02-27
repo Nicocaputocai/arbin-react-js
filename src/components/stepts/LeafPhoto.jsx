@@ -183,13 +183,6 @@ export const LeafPhoto = (props) => {
             .flat()
 
             }
-          <Form.Check 
-           name="otro"
-           type="radio"
-           label="Otra"
-           key="otro"
-           value="otro"
-           />
         </Form>
       </Container>
     </div>

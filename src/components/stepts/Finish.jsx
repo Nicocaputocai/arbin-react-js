@@ -3,8 +3,8 @@ import CensusTreesServices from '../../Services/CensusTreeService';
 import { Form, Image } from 'react-bootstrap';
 
 export const Finish = (props) => {
-  const { selectPosition, Checkbox, fotoHoja, fotoPerfil, formStatus} = props;
-
+  const { selectPosition, Checkbox, fotoHoja, fotoPerfil, formStatus, position } = props;
+  console.log(position);
   const street = selectPosition?.address.road
 const houeseNumber = selectPosition?.address.house_number
 
@@ -13,7 +13,13 @@ const neighbourhood =selectPosition?.address.neighbourhood
 const lat = selectPosition?.lat
 const lng = selectPosition?.lon
 
+const lat2 = position?.lat
+const lng2 = position?.lng
+
 const latlng = `${lng}, ${lat}`
+const latlng2 = `${lng2}, ${lat2}`
+
+console.log(latlng2);
   // console.log(Checkbox);
   const initialFormCensusTree ={
     idTree:"",
@@ -94,7 +100,7 @@ const latlng = `${lng}, ${lat}`
       <Form.Label >
       <h3>Coordenadas:</h3>
         {/* {latlng} */}
-        <input value={latlng} type="text" />
+        <input value={latlng2 !== null || latlng2 !== undefined ? latlng2 : latlng} type="text" />
       </Form.Label> 
       </Form.Group>
       <Form.Group  className='m-2'>

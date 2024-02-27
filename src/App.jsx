@@ -15,7 +15,7 @@ import { Container } from 'react-bootstrap'
 }
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const position = [-34.7033363, -58.3953235];
+// const position = [-34.7033363, -58.3953235];
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -27,6 +27,7 @@ function App() {
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null)
   const [formStatus, setFormStatus] = useState(null);
+  const [position, setPosition] = useState(null);
   const handleFormSubmit = (data) => {
     setFormStatus(data);
   };
@@ -40,18 +41,31 @@ function App() {
     "Finalizar"
   ];
 
-
+console.log(position);
   // Función para manejar el cambio en la validez del formulario
 
   const displayStep = (step) => {
     switch (step) {
       case 1: return <Address selectPosition={selectPosition} setSelectPosition={setSelectPosition} handleFormValidityChange={handleFormValidityChange} />;
-      case 2: return <Ubication selectPosition={selectPosition} setSelectPosition={setSelectPosition} handleFormValidityChange={handleFormValidityChange}  />;
+      case 2: return <Ubication 
+      selectPosition={selectPosition} 
+      setSelectPosition={setSelectPosition} 
+      handleFormValidityChange={handleFormValidityChange}  
+      position={position} 
+      setPosition={setPosition}
+    />
       case 3: return <LeafPhoto handleFormValidityChange={handleFormValidityChange} Checkbox={Checkbox} setCheckbox={setCheckbox} setfotoHoja={setfotoHoja}  fotoHoja={fotoHoja}/>
       case 4: return <ProfilePhoto handleFormValidityChange={handleFormValidityChange} fotoPerfil={fotoPerfil}  setFotoPerfil={setFotoPerfil} />
       case 5: return <Status handleFormValidityChange={handleFormValidityChange} handleFormSubmit={handleFormSubmit}/>
       case 6:  
-      return <Finish selectPosition={selectPosition} Checkbox={Checkbox} fotoHoja={fotoHoja} fotoPerfil={fotoPerfil} formStatus={formStatus}/>;
+      return <Finish 
+      selectPosition={selectPosition} 
+      Checkbox={Checkbox} 
+      fotoHoja={fotoHoja} 
+      fotoPerfil={fotoPerfil} 
+      formStatus={formStatus} 
+      position={position}
+    />;
     };
   }
 
