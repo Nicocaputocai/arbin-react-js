@@ -59,11 +59,11 @@ function ResetCenterView(props) {
   
     return (
       <div className="map-container" style={{}}>
-        <h2 className="m-2">Confirmar ubicación</h2>
+        <h2 className="m-2">Si la ubicación no es correcta, puede arrastrar el marcador a la posición que corresponda</h2>
         <div>
           {locationSelection === undefined ? (
             <MapContainer
-              style={{ height: "20vh" }}
+              style={{ height: "40vh", width:"30vw"  }}
               center={positionCenter}
               zoom={16}
               scrollWheelZoom={true}
@@ -79,7 +79,7 @@ function ResetCenterView(props) {
             </MapContainer>
           ) : (
             <MapContainer
-              style={{ width: "100%" }}
+              style={{  height: "20vh", width:"30vw" }}
               center={selectPosition}
               zoom={15}
               scrollWheelZoom={true}

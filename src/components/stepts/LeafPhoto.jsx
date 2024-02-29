@@ -1,40 +1,37 @@
-import { Button, Container, Form } from "react-bootstrap";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import React, { useState } from "react";
 const leafExample = "./LeafExample.jpg";
-const NOMINATIM_BASE_URL ="https://arbin-ia.divisioncode.net.ar/predict_image";
+const NOMINATIM_BASE_URL = "https://arbin-ia.divisioncode.net.ar/predict_image";
 
+import "./style/gallery.css";
+import PhotoViewer from "./PhotoViewer";
 
 export const LeafPhoto = (props) => {
   const [selectedImage, setSelectedImage] = useState(null); // Vista previa de la imagen
   const [listPlace, setListPlace] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showImage, setShowImage] = useState(null)
+  const [showImage, setShowImage] = useState(null);
   const [selectedCheckbox, setSelectedCheckbox] = useState(null);
-  const  {setCheckbox, handleFormValidityChange, setfotoHoja, Checkbox,  } = props
+  const { setCheckbox, handleFormValidityChange, setfotoHoja, Checkbox } =
+    props;
 
   const validateAddress = () => {
-    const isValid = Checkbox !== ''; // Validación básica: asegúrate de que el campo no esté vacío
+    const isValid = Checkbox !== ""; // Validación básica: asegúrate de que el campo no esté vacío
     handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
-  }
-  
+  };
 
-
-  const handleCheckboxChange = (event) => {
-    setSelectedCheckbox(event.target.value);
-    setCheckbox(event.target.value)
-    console.log(Checkbox);
+  const handleCheckboxChange = (value) => {
+    setCheckbox(value)
+    setSelectedCheckbox(value)
+    console.log(selectedCheckbox);
     validateAddress();
   };
 
-
   const handleInputFileChange = (event) => {
-
     const file = event.target.files[0];
-    setSelectedImage(file)
+    setSelectedImage(file);
 
-
-
-        if (file) {
+    if (file) {
       const reader = new FileReader(); // Crear un lector de archivos
       reader.onloadend = () => {
         // Cuando la lectura del archivo se complete, actualizar el estado de la imagen con la URL de la imagen
@@ -43,14 +40,11 @@ export const LeafPhoto = (props) => {
       };
       reader.readAsDataURL(file); // Leer el archivo como una URL de datos
     }
-
-  }
-
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     setIsLoading(true);
- 
 
     try {
       const formData = new FormData();
@@ -67,7 +61,7 @@ export const LeafPhoto = (props) => {
       }
 
       const result = await response.json();
-      
+
       setListPlace(result);
       console.log(result);
     } catch (error) {
@@ -79,17 +73,24 @@ export const LeafPhoto = (props) => {
   };
 
   return (
-    <div style= {{alignItems:"center", textAlign: "center"}}>
-      <h2>Sacar foto de la hoja</h2>
-      <Form >
-        <div >
+
+    <div style={{ alignItems: "center", textAlign: "center"}}>
+      <h2 className="mb-3">Sacar foto de la hoja</h2>
+      <Row>
+      <Form>
+
+
+        <Row>
+        <Col xs md={{offset: 2, md:2 }}>
+        <div>
           <img
             className="h-16 w-16 object-cover rounded-full"
             src={leafExample}
             alt="Current profile photo"
-            
           />
         </div>
+        </Col>
+        <Col>
         <label className="block">
           <input
             type="file"
@@ -102,20 +103,25 @@ export const LeafPhoto = (props) => {
       file:text-sm file:font-semibold
       file:bg-violet-50 file:text-violet-700
       hover:file:bg-violet-100 m-2"
-    style={{width: 100, height: "20 hv"}}
+            style={{ width: 100, height: "20 hv"}}
           />
         </label>
-          <div >
+        </Col>
+        </Row>
+        <br />
+        
+        <div>
+          <img
+            style={{ maxWidth: "30vw", maxHeight: "50vh", marginLeft:"50px"}}
+            src={showImage}
+          />{" "}
+          {/* Mostrar la vista previa de la foto */}
+        </div> <br />
 
-            <img style={{maxWidth:"30vw", maxHeight:'50vh'}} src={showImage}     />{" "}
-            {/* Mostrar la vista previa de la foto */}
-          </div>
-
-          <div> 
+        <div>
           <Button
             onClick={handleSearch}
             variant="outline-success"
-
             disabled={isLoading || handleSearch == ""} // Deshabilita el botón mientras se está cargando
           >
             {isLoading ? (
@@ -144,7 +150,6 @@ export const LeafPhoto = (props) => {
             )}
           </Button>
         </div>
-
       </Form>
       <Container>
         <h1 className="mt-3">Seleccionar qué árbol corresponde</h1>
@@ -152,39 +157,55 @@ export const LeafPhoto = (props) => {
           {Object.values(listPlace)
 
             .map((array, index) => {
-              if(Array.isArray(array)) {
-              const filteredArray = array.filter((item) => item);
-              const uniqueTreeNames = new Set();
-              const renderedElements = [];
-              let renderedCount = 0;
-              for (const item of filteredArray) {
-                if (!uniqueTreeNames.has(item[0]) && renderedCount < 6) {
-                  uniqueTreeNames.add(item[0]);
-                  renderedElements.push(item);
-                  renderedCount++;
+              if (Array.isArray(array)) {
+                const filteredArray = array.filter((item) => item);
+                const uniqueTreeNames = new Set();
+                const renderedElements = [];
+                let renderedCount = 0;
+                for (const item of filteredArray) {
+                  if (!uniqueTreeNames.has(item[0]) && renderedCount < 6) {
+                    uniqueTreeNames.add(item[0]);
+                    renderedElements.push(item);
+                    renderedCount++;
+                  }
                 }
-              }
-              return renderedElements.map((item, subIndex) => (
-                <Form.Check
-                  type="radio"
-                  id={`${item[0]}-${index}-${subIndex}`}
-                  label={`${item[0][1]}`}
-                  name="tree"
-                  key={`${item[0]}-${index}-${subIndex}`}
-                  value={item[0][0]}
-                  // checked={selectedCheckbox === `${item[0]}`} // Comprueba si este checkbox está seleccionado
-                  onChange={handleCheckboxChange
-                  
-                  } // Maneja el cambio de estado del checkbox
-                />
-              ));
+                return renderedElements.map((item, subIndex) => (
+                  <div key={`${item[0]}-${index}-${subIndex}`}>
+                    <Button
+                      variant="light"
+                      active={selectedCheckbox === item[0] || Checkbox=== item[0]} // Usa selectedCheckbox en lugar de item
+                      onClick={() => {
+                        handleCheckboxChange(item[0] ? item[0] : null); // Cambia item por algún valor específico
+                        validateAddress();
+                      }}
+                    >
+                      {item[0] === "65dce9e9b4f9acb414fbefe9"
+                        ? "Otro"
+                        : item[0][1]}
+                    </Button>
+                    <PhotoViewer item={item} />
+                  </div>
+
+                  // <Form.Check
+                  //   type="radio"
+                  //   id={`${item[0]}-${index}-${subIndex}`}
+                  //   label={`${item[0][1]}`}
+                  //   name="tree"
+                  //   key={`${item[0]}-${index}-${subIndex}`}
+                  //   value={item[0][0]}
+                  //   // checked={selectedCheckbox === `${item[0]}`} // Comprueba si este checkbox está seleccionado
+                  //   onChange={handleCheckboxChange
+
+                  //   } // Maneja el cambio de estado del checkbox
+                  // />
+                ));
               }
             })
-            .flat()
-
-            }
+            .flat()}
         </Form>
       </Container>
+      </Row>
+
     </div>
   );
 };

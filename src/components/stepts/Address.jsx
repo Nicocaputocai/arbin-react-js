@@ -68,7 +68,7 @@ export const Address = (props) => {
                 <Button
                    style={{marginBottom: "3"}}
                   active={selectPosition === item}
-                  variant="outline-dark"
+                  variant="light"
                   onClick={() => {
                     setSelectPosition(item ? item : null);
                     validateAddress();

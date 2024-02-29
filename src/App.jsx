@@ -9,7 +9,7 @@ import { ProfilePhoto } from './components/stepts/ProfilePhoto'
 import { Status } from './components/stepts/Status'
 import { StrepperContext } from './components/contexts/StepperContext'
 import { Finish } from './components/stepts/Finish'
-import { Container } from 'react-bootstrap'
+import { Col, Container, Row } from 'react-bootstrap'
 {
   /* The following line can be included in your src/index.js or App.js file */
 }
@@ -28,6 +28,18 @@ function App() {
   const [fotoPerfil, setFotoPerfil] = useState(null)
   const [formStatus, setFormStatus] = useState(null);
   const [position, setPosition] = useState(null);
+  const [finishForm, setFinishForm] = useState({    
+  idTree:"",
+  address:"",
+  neightboardhood:"",
+  leafImg:null,
+  profileImg: null,
+  generalStatus: "",
+  fallingDanger:"",
+  inclination: "",
+  diameter: "",
+  coordinates: ""})
+
   const handleFormSubmit = (data) => {
     setFormStatus(data);
   };
@@ -40,10 +52,12 @@ function App() {
     "Estado",
     "Finalizar"
   ];
-
-console.log(position);
+  const handleSave = () => {
+    save();
+  };
+// console.log(position);
   // Función para manejar el cambio en la validez del formulario
-
+  // console.log(Checkbox);
   const displayStep = (step) => {
     switch (step) {
       case 1: return <Address selectPosition={selectPosition} setSelectPosition={setSelectPosition} handleFormValidityChange={handleFormValidityChange} />;
@@ -65,13 +79,47 @@ console.log(position);
       fotoPerfil={fotoPerfil} 
       formStatus={formStatus} 
       position={position}
+      setFinishForm={setFinishForm}
+      finishForm={finishForm}
     />;
     };
   }
 
   const enviarFormulario = () => {
+    
     // Aquí puedes agregar la lógica para enviar el formulario
-    alert("¡El formulario ha sido enviado!");
+    const save = () => {
+      let data = {
+        idTree: createArticle.idTree,
+        address: createArticle.address,
+        neightboardhood: createArticle.neightboardhood,
+        leafImg:createArticle.leafImg,
+        profileImg:createArticle.profileImg,
+        generalStatus:createArticle.generalStatus,
+        fallingDanger:createArticle.fallingDanger,
+        coordinates:createArticle.coordinates,
+      };
+   // console.log(data);
+   CensusTreesServices
+   .createCensusTrees(createFormData(data))
+   .then((response) => {
+     setCreateCensusTree({
+        idTree: response.data.idTree,
+        address: response.data.address,
+        neightboardhood: response.data.neightboardhood,
+        leafImg:response.data.leafImg,
+        profileImg:response.data.profileImg,
+        generalStatus:response.data.generalStatus,
+        fallingDanger:response.data.fallingDanger,
+        coordinates:response.data.coordinates,
+     });
+  
+     setSubmitted(true);
+     handleShow(true);
+   })
+   .catch((err) => console.log(err));
+  }
+    
     // Puedes acceder a los datos finales del formulario desde finalData si lo necesitas
   };
   // const handleClick = (direction) => {
@@ -110,12 +158,15 @@ console.log(position);
 
   return (
     <Container>
+      <Row>
       <div className='mt-5'>
         <Stepper
           steps={steps}
           currentStep={currentStep}
         />
       </div>
+      <Col md={{ span: 6, offset: 3 }}>
+     
 
       <div className='my-10 p-10'>
         {/* Paso el manejador de cambio de validez del formulario a cada paso */}
@@ -138,8 +189,13 @@ console.log(position);
           steps={steps}
           formValid={formValid}
           enviarFormulario={enviarFormulario} 
+          save={handleSave}
         />
       </div>
+      
+      </Col>
+      </Row>
+      
     </Container>
   );
 }
