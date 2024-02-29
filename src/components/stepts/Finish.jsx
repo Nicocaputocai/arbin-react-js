@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import CensusTreesServices from '../../Services/CensusTreeService';
-import { Button, Form, Image } from 'react-bootstrap';
+import { Button, Form, Image, Modal } from 'react-bootstrap';
 
 export const Finish = (props) => {
-  const { selectPosition, Checkbox, fotoHoja, fotoPerfil, formStatus, position, finishForm, setFinishForm } = props;
-
+  const { selectPosition, Checkbox, fotoHoja, fotoPerfil, formStatus, position } = props;
   const street = selectPosition?.address.road
 const houeseNumber = selectPosition?.address.house_number
+
 
 const address = `${street} ${houeseNumber}`
 const neighbourhood =selectPosition?.address.neighbourhood
@@ -18,20 +18,18 @@ const lng2 = position?.lng
 
 const latlng = `${lng}, ${lat}`
 const latlng2 = `${lng2}, ${lat2}`
-// console.log(latlng)
-// console.log(latlng2);
-  // console.log(Checkbox);
+
   const initialFormCensusTree ={
-    idTree:"",
-    address:"",
-    neightboardhood:"",
-    leafImg:"",
-    profileImg: "",
-    generalStatus: "",
-    fallingDanger:"",
-    inclination: "",
-    diameter: "",
-    coordinates: ""
+    idTree: Checkbox[0],
+    address: address,
+    neightboardhood:neighbourhood,
+    leafImg:fotoHoja,
+    profileImg: fotoPerfil,
+    generalStatus: formStatus?.generalStatus,
+    fallingDanger:formStatus?.fallingDanger,
+    inclination: formStatus?.inclination,
+    diameter: formStatus?.diameter,
+    coordinates: lat2 === undefined && lng2 === undefined  ? latlng : latlng2
   };
 
 
@@ -45,6 +43,7 @@ const latlng2 = `${lng2}, ${lat2}`
 
   const [createCensusTree, setCreateCensusTree] = useState(initialFormCensusTree)
   const [submitted, setSubmitted] = useState();
+  const [show, setShow] = useState(false);
   const [handleShow] = useState(true);
   const handleClose = () => setShow(false); //Modal de confirmación
 
@@ -65,29 +64,45 @@ const latlng2 = `${lng2}, ${lat2}`
       fallingDanger:createCensusTree.fallingDanger,
       coordinates:createCensusTree.coordinates,
     };
- console.log(data);
-//  CensusTreesServices
-//  .createCensusTrees(createFormData(data))
-//  .then((response) => {
-//    setCreateCensusTree({
-//       idTree: response.data.idTree,
-//       address: response.data.address,
-//       neightboardhood: response.data.neightboardhood,
-//       leafImg:response.data.leafImg,
-//       profileImg:response.data.profileImg,
-//       generalStatus:response.data.generalStatus,
-//       fallingDanger:response.data.fallingDanger,
-//       coordinates:response.data.coordinates,
-//    });
+//  console.log(data);
+ CensusTreesServices
+ .createCensusTrees(createFormData(data))
+ .then((response) => {
+   setCreateCensusTree({
+      idTree: response.data.idTree,
+      address: response.data.address,
+      neightboardhood: response.data.neightboardhood,
+      leafImg:response.data.leafImg,
+      profileImg:response.data.profileImg,
+      generalStatus:response.data.generalStatus,
+      fallingDanger:response.data.fallingDanger,
+      coordinates:response.data.coordinates,
+   });
 
-//    setSubmitted(true);
-//    handleShow(true);
-//  })
-//  .catch((err) => console.log(err));
+   setSubmitted(true);
+   handleShow(true);
+ })
+ .catch((err) => console.log(err));
 }
 
   return (
     <div>
+       {submitted ? (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Modal heading</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Actividad creada correctamente</Modal.Body>
+          <Modal.Footer>
+            <Button variant="info" href="/">
+              Home
+            </Button>
+            <Button variant="success" href="/admin">
+              Volver al administrador
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      ) : (
     <Form>
       <Form.Group  className='m-2'>
 
@@ -115,7 +130,7 @@ const latlng2 = `${lng2}, ${lat2}`
       <Form.Group className='m-2'>
       <Form.Label >
       <h3>Arbol censado:</h3> 
-<input type="text" defaultValue={Checkbox} onChange={handleInputChange} style={{ textAlign:"center",margin:1}} disabled name='idTree'/>
+<input type="text" defaultValue={Checkbox[1]} onChange={handleInputChange} style={{ textAlign:"center",margin:1}} disabled name='idTree'/>
       </Form.Label> 
     </Form.Group>
     <Form.Group className='m-2'>
@@ -156,8 +171,9 @@ const latlng2 = `${lng2}, ${lat2}`
       </Form.Label> 
       </Form.Group> 
       
-      <Button variant='outline-success'onClick={save}> Enviar Formulio</Button>
+      <Button variant='outline-success' type='submit' onClick={save}> Enviar Formulio</Button>
     </Form>
+     )}
     </div>
   )
 }
