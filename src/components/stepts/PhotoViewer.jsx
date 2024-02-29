@@ -74,12 +74,12 @@ const PhotoViewer = ({ item }) => {
                     className="main-image"
                     style={{ width: "35vw", height: "20 hv"}}
                 />
-                <button className="prev-button" onClick={prevImage}>
+                {/* <button className="prev-button" onClick={prevImage}>
                     &#10094;
                 </button>
                 <button className="next-button" onClick={nextImage}>
                     &#10095;
-                </button>
+                </button> */}
             </div>
             <div className="thumbnail-container">
                 {images.map((image, index) => (

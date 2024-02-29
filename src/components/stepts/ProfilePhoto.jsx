@@ -21,7 +21,7 @@ export const ProfilePhoto = (props) => {
       <div>
         <h2>Sacar foto del arbol completo</h2>
         <form className="flex items-center space-x-6">
-          <label className="block">
+          <label className="block" style={{ marginLeft:"120px"}}>
           <input
             type="file"
             name="file"
@@ -34,9 +34,9 @@ export const ProfilePhoto = (props) => {
       file:bg-violet-50 file:text-violet-700
       hover:file:bg-violet-100 m-2
     "
-    style={{width: 100, height: "20 hv"}}
+    style={{width:"100vw", height: "20 hv", }}
           />
-          <div style={{width: "15vw", height: "30 hv", alignItem:"center" }}>
+          <div style={{width: "15vw", height: "30 hv", alignItem:"center"}}>
             <img src={selectedImageProfile}     />{" "}
           </div>
         </label>
