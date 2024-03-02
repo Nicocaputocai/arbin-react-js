@@ -2,6 +2,16 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet"
 import L from 'leaflet'
 import '../../../node_modules/leaflet/dist/leaflet.css';
+import treeMarker from '../../assets/marker/Espacio_verde.svg'
+
+const myIcon = new L.Icon({
+  iconUrl: treeMarker,
+  iconRetinaUrl: treeMarker,
+  popupAnchor:  [-0, -0],
+  iconSize: [80, 50],
+  shadowSize: [68, 95],
+  shadowAnchor: [22, 94],     
+});
 
 const positionCenter =[-34.7033363,-58.3953235]
 
@@ -53,6 +63,7 @@ function ResetCenterView(props) {
           eventHandlers={eventHandlers}
           position={position !== null ? position : selectPosition}
           ref={markerRef}
+          icon={myIcon}
         />
       );
     }

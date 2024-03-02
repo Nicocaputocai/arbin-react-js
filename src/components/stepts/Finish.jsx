@@ -38,6 +38,7 @@ const latlng2 = `${lng2}, ${lat2}`
     Object.keys(data).forEach((key) => {
       formData.append(key, data[key]);
     });
+    console.log(formData);
     return formData;
   }
 
@@ -62,6 +63,8 @@ const latlng2 = `${lng2}, ${lat2}`
       profileImg:createCensusTree.profileImg,
       generalStatus:createCensusTree.generalStatus,
       fallingDanger:createCensusTree.fallingDanger,
+      inclination: createCensusTree.inclination,
+      diameter:createCensusTree.diameter,
       coordinates:createCensusTree.coordinates,
     };
 //  console.log(data);
@@ -76,6 +79,8 @@ const latlng2 = `${lng2}, ${lat2}`
       profileImg:response.data.profileImg,
       generalStatus:response.data.generalStatus,
       fallingDanger:response.data.fallingDanger,
+      inclination: response.data.inclinationresponse,
+      diameter: response.data.diameter,
       coordinates:response.data.coordinates,
    });
 
