@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Button } from "react-bootstrap";
-const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?";
+const NOMINATIM_BASE_URL = "http://nominatim.openstreetmap.org/search?";
 import './style/searchBar.css'
 export const Address = (props) => {
   const [searchText, setSearchText] = useState("");
@@ -10,6 +10,8 @@ export const Address = (props) => {
   const validateAddress = () => {
     const isValid = selectPosition !== null; // Validación básica: asegúrate de que el campo no esté vacío
     handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
+
+    // Falta useEffect()
   };
 
   const handleChange = (event) => {

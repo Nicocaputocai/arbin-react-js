@@ -8,9 +8,9 @@ const myIcon = new L.Icon({
   iconUrl: treeMarker,
   iconRetinaUrl: treeMarker,
   popupAnchor:  [-0, -0],
-  iconSize: [80, 50],
-  shadowSize: [68, 95],
-  shadowAnchor: [22, 94],     
+    iconSize: [40, 40],
+    shadowSize: [68, 95],
+    shadowAnchor: [22, 94],     
 });
 
 const positionCenter =[-34.7033363,-58.3953235]

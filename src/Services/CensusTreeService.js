@@ -5,7 +5,7 @@ const service = httpLocal;
 
 const CensusTreesServices = {
     getAllCensusTrees: () => service.get('/censusTrees'),
-    createCensusTrees: (data) => service.post('/censusTrees/create', data)
+    createCensusTrees: (data, options={headers:{'Content-type':'multipart/form-data'}}) => service.post('/censusTrees/create', data, {...options})
 }
 
 export default CensusTreesServices
