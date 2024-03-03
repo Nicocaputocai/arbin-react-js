@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Button } from "react-bootstrap";
-const NOMINATIM_BASE_URL = "http://nominatim.openstreetmap.org/search?";
+const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?";
 import './style/searchBar.css'
 export const Address = (props) => {
   const [searchText, setSearchText] = useState("");
