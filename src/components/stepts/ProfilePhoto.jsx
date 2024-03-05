@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Col, Container, Row } from "react-bootstrap";
 
 
 export const ProfilePhoto = (props) => {
@@ -7,6 +8,12 @@ export const ProfilePhoto = (props) => {
   const handleChange = (event) => {
     setSearchText(event.target.value);
   };
+  useEffect(() => {
+    const storedImage = localStorage.getItem("selectedImageProfile");
+    if (storedImage) {
+      setSelectedImageProfile(storedImage);
+    }
+  }, []);
   const validatePhoto = () => {
     const isValid = selectedImageProfile !== null; // Validación básica: asegúrate de que el campo no esté vacío
     handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
@@ -28,8 +35,9 @@ export const ProfilePhoto = (props) => {
     }
   };
   return (
-    <div>
-      <div>
+    <Container>
+    <Row>
+      <Col xs={{span:10, offset:1}} md={{span:6, offset:3}}>
         <h2>Sacar foto del arbol completo</h2>
         <form className="flex items-center space-x-6">
           <label className="block" style={{ marginLeft:"120px"}}>
@@ -52,7 +60,8 @@ export const ProfilePhoto = (props) => {
           </div>
         </label>
         </form>
-      </div>
-    </div>
+      </Col>
+    </Row>
+    </Container>
   );
 };

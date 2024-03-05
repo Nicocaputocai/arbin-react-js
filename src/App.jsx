@@ -24,7 +24,7 @@ function App() {
   const [finalData, setFinalData] = useState([]);
   const [selectPosition, setSelectPosition] = useState(null);
   const [formValid, setFormValid] = useState(false); // Estado para rastrear la validez del formulario
-  const [Checkbox, setCheckbox] = useState([]);
+  const [Checkbox, setCheckbox] = useState(null);
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [formStatus, setFormStatus] = useState(null);

@@ -25,12 +25,7 @@ export const LeafPhotoPlantId = (props) => {
     validatePhoto();
   }, [Checkbox]);
   
-  // const handleCheckboxChange = (id, name) => {
-  //   const checkboxValue = { id, name };
-  //   setCheckbox(checkboxValue);
-  //   setSelectedCheckbox(checkboxValue);
-  //   validatePhoto();
-  // };
+
 
   const handleInputFileChange = (event) => {
     const file = event.target.files[0];
@@ -70,9 +65,8 @@ export const LeafPhotoPlantId = (props) => {
         body: raw,
         redirect: 'follow',
       };
-      const language = 'es'
       const response = await fetch(
-        `${NOMINATIM_BASE_URL_PLANT_ID}?language=${language}`,
+        `${NOMINATIM_BASE_URL_PLANT_ID}`,
         requestOptions
       );
       if (!response.ok) {
@@ -87,8 +81,8 @@ export const LeafPhotoPlantId = (props) => {
         const id = result.result.classification.suggestions[0].id;
         const photo =  result.result.classification.suggestions[0].similar_images[0].url;
         setListPlace([id,name,photo]);
-        console.log(name); // Imprime el nombre del lugar
-        console.log(listPlace);
+        // console.log(name); // Imprime el nombre del lugar
+        // console.log(listPlace);
         setCheckbox(prevCheckboxValue => {
           // Si prevCheckboxValue no está inicializado, inicialízalo como un array vacío
           if (!Array.isArray(prevCheckboxValue)) {
@@ -107,7 +101,7 @@ export const LeafPhotoPlantId = (props) => {
       setIsLoading(false);
     }
   };
-  console.log(Checkbox);
+  // console.log(Checkbox);
   return (
     <div style={{ alignItems: "center", textAlign: "center" }}>
       <h2 className="mb-3">Sacar foto de la hoja</h2>
@@ -190,17 +184,10 @@ export const LeafPhotoPlantId = (props) => {
         <Container>
           <Row>
             <Col xs={{span:10, offset:1}} md={{span:6, offset:3}}>
-            <h1 className="mt-3">Árbol encontrado:</h1>
-          <Button variant="light"
-                        active={
-                          selectedCheckbox === listPlace[0] || Checkbox === listPlace[0]
-                        } // Usa selectedCheckbox en lugar de item
-                        onClick={() => {
-                           // Cambia item por algún valor específico
-                          
-                        }}>
-          {listPlace[1]}
-          </Button>
+            {Checkbox !== null ? <h1 className="mt-3">¡Árbol encontrado!</h1> : ""} <br />
+          
+            <h2 style={{backgroundColor:"green", color:"white", fontSize:"2em"}}>{listPlace[1]}</h2>
+<br />
           
           <Image src={listPlace[2]} />
             </Col>
