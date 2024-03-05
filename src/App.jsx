@@ -1,44 +1,48 @@
-import { useState } from 'react'
-import './App.css'
-import { Stepper } from './components/Stepper'
-import { StepperControl } from './components/StepperControl'
-import { Address } from './components/stepts/Address'
-import { Ubication } from './components/stepts/Ubication'
-import { LeafPhoto } from './components/stepts/LeafPhoto'
-import { ProfilePhoto } from './components/stepts/ProfilePhoto'
-import { Status } from './components/stepts/Status'
-import { StrepperContext } from './components/contexts/StepperContext'
-import { Finish } from './components/stepts/Finish'
-import { Col, Container, Row } from 'react-bootstrap'
+import { useState } from "react";
+import "./App.css";
+import { Stepper } from "./components/Stepper";
+import { StepperControl } from "./components/StepperControl";
+import { Address } from "./components/stepts/Address";
+import { Ubication } from "./components/stepts/Ubication";
+import { LeafPhoto } from "./components/stepts/LeafPhoto";
+import { ProfilePhoto } from "./components/stepts/ProfilePhoto";
+import { Status } from "./components/stepts/Status";
+import { StrepperContext } from "./components/contexts/StepperContext";
+import { Finish } from "./components/stepts/Finish";
+import { LeafPhotoPlantId } from "./components/stepts/LeafPhotoPlantId";
+import { Col, Container, Row } from "react-bootstrap";
 {
   /* The following line can be included in your src/index.js or App.js file */
 }
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 // const position = [-34.7033363, -58.3953235];
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [userData, setUserData] = useState('');
+  const [userData, setUserData] = useState("");
   const [finalData, setFinalData] = useState([]);
   const [selectPosition, setSelectPosition] = useState(null);
   const [formValid, setFormValid] = useState(false); // Estado para rastrear la validez del formulario
-  const [Checkbox, setCheckbox] = useState(null);
+  const [Checkbox, setCheckbox] = useState([]);
   const [fotoHoja, setfotoHoja] = useState(null);
-  const [fotoPerfil, setFotoPerfil] = useState(null)
+  const [fotoPerfil, setFotoPerfil] = useState(null);
   const [formStatus, setFormStatus] = useState(null);
   const [position, setPosition] = useState(null);
-  const [finishForm, setFinishForm] = useState({    
-  idTree:"",
-  address:"",
-  neightboardhood:"",
-  leafImg:null,
-  profileImg: null,
-  generalStatus: "",
-  fallingDanger:"",
-  inclination: "",
-  diameter: "",
-  coordinates: ""})
+  const handleShow = () => setShow(true); //Modal de confirmación
+
+  const [finishForm, setFinishForm] = useState({
+    idTree: "",
+    address: "",
+    neightboardhood: "",
+    leafImg: null,
+    profileImg: null,
+    generalStatus: "",
+    fallingDanger: "",
+    inclination: "",
+    diameter: "",
+    coordinates: "",
+  });
 
   const handleFormSubmit = (data) => {
     setFormStatus(data);
@@ -50,94 +54,88 @@ function App() {
     "Foto de la hoja",
     "Foto del perfil",
     "Estado",
-    "Finalizar"
+    "Finalizar",
   ];
   const handleSave = () => {
     save();
   };
-// console.log(position);
-  // Función para manejar el cambio en la validez del formulario
-  // console.log(Checkbox);
+
   const displayStep = (step) => {
     switch (step) {
-      case 1: return <Address selectPosition={selectPosition} setSelectPosition={setSelectPosition} handleFormValidityChange={handleFormValidityChange} />;
-      case 2: return <Ubication 
-      selectPosition={selectPosition} 
-      setSelectPosition={setSelectPosition} 
-      handleFormValidityChange={handleFormValidityChange}  
-      position={position} 
-      setPosition={setPosition}
-    />
-      case 3: return <LeafPhoto handleFormValidityChange={handleFormValidityChange} Checkbox={Checkbox} setCheckbox={setCheckbox} setfotoHoja={setfotoHoja}  fotoHoja={fotoHoja}/>
-      case 4: return <ProfilePhoto handleFormValidityChange={handleFormValidityChange} fotoPerfil={fotoPerfil}  setFotoPerfil={setFotoPerfil} />
-      case 5: return <Status handleFormValidityChange={handleFormValidityChange} handleFormSubmit={handleFormSubmit}/>
-      case 6:  
-      return <Finish 
-      selectPosition={selectPosition} 
-      Checkbox={Checkbox} 
-      fotoHoja={fotoHoja} 
-      fotoPerfil={fotoPerfil} 
-      formStatus={formStatus} 
-      position={position}
-      setFinishForm={setFinishForm}
-      finishForm={finishForm}
-    />;
-    };
-  }
-
-  const enviarFormulario = () => {
-    
-    // Aquí puedes agregar la lógica para enviar el formulario
-    const save = () => {
-      let data = {
-        idTree: createArticle.idTree,
-        address: createArticle.address,
-        neightboardhood: createArticle.neightboardhood,
-        leafImg:createArticle.leafImg,
-        profileImg:createArticle.profileImg,
-        generalStatus:createArticle.generalStatus,
-        fallingDanger:createArticle.fallingDanger,
-        coordinates:createArticle.coordinates,
-      };
-   // console.log(data);
-   CensusTreesServices
-   .createCensusTrees(createFormData(data))
-   .then((response) => {
-     setCreateCensusTree({
-        idTree: response.data.idTree,
-        address: response.data.address,
-        neightboardhood: response.data.neightboardhood,
-        leafImg:response.data.leafImg,
-        profileImg:response.data.profileImg,
-        generalStatus:response.data.generalStatus,
-        fallingDanger:response.data.fallingDanger,
-        coordinates:response.data.coordinates,
-     });
-  
-     setSubmitted(true);
-     handleShow(true);
-   })
-   .catch((err) => console.log(err));
-  }
-    
-    // Puedes acceder a los datos finales del formulario desde finalData si lo necesitas
+      case 1:
+        return (
+          <Address
+            selectPosition={selectPosition}
+            setSelectPosition={setSelectPosition}
+            handleFormValidityChange={handleFormValidityChange}
+          />
+        );
+      case 2:
+        return (
+          <Ubication
+            selectPosition={selectPosition}
+            setSelectPosition={setSelectPosition}
+            handleFormValidityChange={handleFormValidityChange}
+            position={position}
+            setPosition={setPosition}
+          />
+        );
+      case 3:
+        return (
+          <LeafPhotoPlantId
+            handleFormValidityChange={handleFormValidityChange}
+            Checkbox={Checkbox}
+            setCheckbox={setCheckbox}
+            setfotoHoja={setfotoHoja}
+            fotoHoja={fotoHoja}
+            
+          />
+        );
+      case 4:
+        return (
+          <ProfilePhoto
+            handleFormValidityChange={handleFormValidityChange}
+            fotoPerfil={fotoPerfil}
+            setFotoPerfil={setFotoPerfil}
+          />
+        );
+      case 5:
+        return (
+          <Status
+            handleFormValidityChange={handleFormValidityChange}
+            handleFormSubmit={handleFormSubmit}
+          />
+        );
+      case 6:
+        return (
+          <Finish
+            selectPosition={selectPosition}
+            Checkbox={Checkbox}
+            fotoHoja={fotoHoja}
+            fotoPerfil={fotoPerfil}
+            formStatus={formStatus}
+            position={position}
+            setFinishForm={setFinishForm}
+            finishForm={finishForm}
+            handleFormValidityChange={handleFormValidityChange}
+            formValid={formValid}
+          />
+        );
+    }
   };
-  // const handleClick = (direction) => {
-  //   let newStep = currentStep
-  //   direction === "Siguiente" && formValid ==! "" ? newStep++ : newStep--;
-    
-  //   newStep > 0 && newStep <= steps.length && setCurrentStep(newStep);
-  // };
+
+  
+
   const handleClick = (direction) => {
     let newStep = currentStep;
-  
+
     // Verificar si el usuario intenta avanzar
     if (direction === "Siguiente" && formValid !== false) {
       newStep++;
     } else {
       newStep--;
     }
-  
+
     // Verificar si se llega al último paso y la dirección es "Siguiente"
     if (currentStep === steps.length && direction === "Siguiente") {
       // Lógica para enviar el formulario
@@ -149,53 +147,45 @@ function App() {
       }
     }
   };
-  
 
   const handleFormValidityChange = (isValid) => {
     setFormValid(isValid);
-  }
-
+  };
 
   return (
     <Container>
       <Row>
-      <div className='mt-5'>
-        <Stepper
-          steps={steps}
-          currentStep={currentStep}
-        />
-      </div>
-      <Col md={{ span: 6, offset: 3 }}>
-     
+        <div className="mt-5">
+          <Stepper steps={steps} currentStep={currentStep} />
+        </div>
+        <Col >
+          <div className="my-10">
+            {/* Paso el manejador de cambio de validez del formulario a cada paso */}
+            <StrepperContext.Provider
+              value={{
+                userData,
+                setUserData,
+                finalData,
+                setFinalData,
+                handleFormValidityChange,
+              }}
+            >
+              {displayStep(currentStep)}
+            </StrepperContext.Provider>
+          </div>
 
-      <div className='my-10 p-10'>
-        {/* Paso el manejador de cambio de validez del formulario a cada paso */}
-        <StrepperContext.Provider value={{
-          userData,
-          setUserData,
-          finalData,
-          setFinalData,
-          handleFormValidityChange
-        }}>
-          {displayStep(currentStep)}
-        </StrepperContext.Provider>
-      </div>
-
-      <div>
-        {/* Deshabilito el botón "Siguiente" si el formulario no es válido */}
-        <StepperControl
-          handleClick={handleClick}
-          currentStep={currentStep}
-          steps={steps}
-          formValid={formValid}
-          enviarFormulario={enviarFormulario} 
-          save={handleSave}
-        />
-      </div>
-      
-      </Col>
+          <div>
+            {/* Deshabilito el botón "Siguiente" si el formulario no es válido */}
+            <StepperControl
+              handleClick={handleClick}
+              currentStep={currentStep}
+              steps={steps}
+              formValid={formValid}
+              save={handleSave}
+            />
+          </div>
+        </Col>
       </Row>
-      
     </Container>
   );
 }

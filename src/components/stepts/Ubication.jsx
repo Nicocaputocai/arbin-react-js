@@ -3,6 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet"
 import L from 'leaflet'
 import '../../../node_modules/leaflet/dist/leaflet.css';
 import treeMarker from '../../assets/marker/Espacio_verde.svg'
+import { Col, Row } from "react-bootstrap";
 
 const myIcon = new L.Icon({
   iconUrl: treeMarker,
@@ -10,7 +11,8 @@ const myIcon = new L.Icon({
   popupAnchor:  [-0, -0],
     iconSize: [40, 40],
     shadowSize: [68, 95],
-    shadowAnchor: [22, 94],     
+    shadowAnchor: [22, 94],   
+    iconAnchor: [20, 40],  
 });
 
 const positionCenter =[-34.7033363,-58.3953235]
@@ -69,12 +71,14 @@ function ResetCenterView(props) {
     }
   
     return (
-      <div className="map-container" style={{}}>
+      <Row>
+      <div className="map-container" style={{}} >
         <h2 className="m-2">Si la ubicación no es correcta, puede arrastrar el marcador a la posición que corresponda</h2>
+        <Col md={{ span: 10,  offset: 1 }} xs={{span:10, offset:1}}>
         <div>
           {locationSelection === undefined ? (
             <MapContainer
-              style={{ height: "40vh", width:"30vw"  }}
+              style={{ height: "50vh", width:"60vw"  }}
               center={positionCenter}
               zoom={16}
               scrollWheelZoom={true}
@@ -90,7 +94,7 @@ function ResetCenterView(props) {
             </MapContainer>
           ) : (
             <MapContainer
-              style={{  height: "20vh", width:"30vw" }}
+              style={{  height: "50vh", width:"60vw" }}
               center={selectPosition}
               zoom={15}
               scrollWheelZoom={true}
@@ -106,7 +110,9 @@ function ResetCenterView(props) {
             </MapContainer>
           )}
         </div>
+        </Col>
       </div>
+      </Row>
     );
   };
   

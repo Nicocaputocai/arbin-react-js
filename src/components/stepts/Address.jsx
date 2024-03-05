@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?";
 import './style/searchBar.css'
@@ -7,17 +7,20 @@ export const Address = (props) => {
   const { selectPosition, setSelectPosition, handleFormValidityChange } = props;
   const [listPlace, setListPlace] = useState([]);
 
+
+
+  const handleChange = (event) => {
+    setSearchText(event.target.value);
+  };
   const validateAddress = () => {
     const isValid = selectPosition !== null; // Validación básica: asegúrate de que el campo no esté vacío
     handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
 
     // Falta useEffect()
   };
-
-  const handleChange = (event) => {
-    setSearchText(event.target.value);
-    validateAddress();
-  };
+  useEffect(() =>{
+    validateAddress()
+  },[selectPosition])
 
   return (
     <div className="flex flex-col">
@@ -38,7 +41,7 @@ export const Address = (props) => {
             value={searchText}
             className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
           />
-         <Button variant="outline-success" onClick={() => {
+         <Button variant="outline-success" disabled={searchText.length === 0 ? true: false} onClick={() => {
               // Search
               const params = {
                 q: searchText,
@@ -73,7 +76,7 @@ export const Address = (props) => {
                   variant="light"
                   onClick={() => {
                     setSelectPosition(item ? item : null);
-                    validateAddress();
+                    validateAddress()
                   }}
                 >
                   {`${

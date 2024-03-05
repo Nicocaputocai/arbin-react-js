@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export const ProfilePhoto = (props) => {
   const [selectedImageProfile, setSelectedImageProfile] = useState(null); // Vista previa de la imagen
   const  {handleFormValidityChange, setFotoPerfil } = props
+  const handleChange = (event) => {
+    setSearchText(event.target.value);
+  };
+  const validatePhoto = () => {
+    const isValid = selectedImageProfile !== null; // Validación básica: asegúrate de que el campo no esté vacío
+    handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
+
+  };
+  useEffect(() =>{
+    validatePhoto()
+  },[selectedImageProfile])
   const handleInputFileChange = (event) => {
     const file = event.target.files[0]; // Obtener el archivo seleccionado
     if (file) {

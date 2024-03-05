@@ -47,3 +47,8 @@
 .read-the-docs {
   color: #888;
 }
+.leaflet-container {
+  width: 60vw; /* Cambié el ancho del mapa */
+  height: 50vh; /* Cambié el alto del mapa */
+  margin: 0 auto; /* Añadí margen automático para centrar el mapa horizontalmente */
+}

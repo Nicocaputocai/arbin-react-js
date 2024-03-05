@@ -1,19 +1,21 @@
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Image } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 const leafExample = "./LeafExample.jpg";
 const NOMINATIM_BASE_URL = "https://arbin-ia.divisioncode.net.ar/predict_image";
+const NOMINATIM_BASE_URL_PLANT_ID = "https://plant.id/api/v3/identification";
 
 import "./style/gallery.css";
-import PhotoViewer from "./PhotoViewer";
 
-export const LeafPhoto = (props) => {
+
+
+export const LeafPhotoPlantId = (props) => {
   const [selectedImage, setSelectedImage] = useState(null); // Vista previa de la imagen
   const [listPlace, setListPlace] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showImage, setShowImage] = useState(null);
   const [selectedCheckbox, setSelectedCheckbox] = useState(null);
-  const { setCheckbox, handleFormValidityChange, setfotoHoja, Checkbox } =
-    props;
+  const { setCheckbox, handleFormValidityChange, setfotoHoja, Checkbox } = props;
+  const API_KEY = import.meta.env.VITE_KEY_PLANT_ID
 
   const validatePhoto = () => {
     const isValid = Checkbox !== null; // Validación básica: asegúrate de que el campo no esté vacío
@@ -22,12 +24,13 @@ export const LeafPhoto = (props) => {
   useEffect(() => {
     validatePhoto();
   }, [Checkbox]);
-  const handleCheckboxChange = (value) => {
-    setCheckbox(value);
-    setSelectedCheckbox(value);
-    console.log(selectedCheckbox);
-    validatePhoto();
-  };
+  
+  // const handleCheckboxChange = (id, name) => {
+  //   const checkboxValue = { id, name };
+  //   setCheckbox(checkboxValue);
+  //   setSelectedCheckbox(checkboxValue);
+  //   validatePhoto();
+  // };
 
   const handleInputFileChange = (event) => {
     const file = event.target.files[0];
@@ -44,28 +47,59 @@ export const LeafPhoto = (props) => {
     }
   };
 
-  const handleSearch = async (e) => {
+  const handleSearchPlantId = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      var raw = JSON.stringify({
+        images: [showImage],
+        "latitude": 49.207,
+        "longitude": 16.608,
+        "similar_images": true
+      })
       const formData = new FormData();
       formData.append("file", selectedImage);
+      var myHeaders = new Headers();
+      myHeaders.append("Api-Key", API_KEY);
+      myHeaders.append("Content-Type", "application/json");
 
       const requestOptions = {
-        method: "POST",
-        body: formData,
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
       };
-
-      const response = await fetch(`${NOMINATIM_BASE_URL}`, requestOptions);
+      const language = 'es'
+      const response = await fetch(
+        `${NOMINATIM_BASE_URL_PLANT_ID}?language=${language}`,
+        requestOptions
+      );
       if (!response.ok) {
         throw new Error("Failed to upload image");
       }
 
       const result = await response.json();
 
-      setListPlace(result);
-      console.log(result);
+      if (result.result && result.result.classification && result.result.classification.suggestions.length > 0) {
+        // Verificar si hay sugerencias disponibles antes de acceder a ellas
+        const name = result.result.classification.suggestions[0].name;
+        const id = result.result.classification.suggestions[0].id;
+        const photo =  result.result.classification.suggestions[0].similar_images[0].url;
+        setListPlace([id,name,photo]);
+        console.log(name); // Imprime el nombre del lugar
+        console.log(listPlace);
+        setCheckbox(prevCheckboxValue => {
+          // Si prevCheckboxValue no está inicializado, inicialízalo como un array vacío
+          if (!Array.isArray(prevCheckboxValue)) {
+            prevCheckboxValue = [];
+          }
+          // Concatenar los nuevos valores
+          return prevCheckboxValue.concat([id, name]);
+        });
+      
+        validatePhoto()
+      }
     } catch (error) {
       console.log("Error:", error.message);
       console.log("La imagen no se envió correctamente a la API");
@@ -73,7 +107,7 @@ export const LeafPhoto = (props) => {
       setIsLoading(false);
     }
   };
-
+  console.log(Checkbox);
   return (
     <div style={{ alignItems: "center", textAlign: "center" }}>
       <h2 className="mb-3">Sacar foto de la hoja</h2>
@@ -109,20 +143,20 @@ export const LeafPhoto = (props) => {
           </Row>
           <br />
           <div>
-            <img
-              style={{
-                maxWidth: "30vw",
-                maxHeight: "50vh",
-                marginLeft: "50px",
-              }}
-              src={showImage}
-            />{" "}
+            <Col xs={{ span: 10, offset: 1 }} md={{ span: 6, offset: 4 }}>
+              <img
+                style={{
+                  maxHeight: "50vh",
+                }}
+                src={showImage}
+              />{" "}
+            </Col>
             {/* Mostrar la vista previa de la foto */}
           </div>{" "}
           <br />
           <div>
             <Button
-              onClick={handleSearch}
+              onClick={handleSearchPlantId}
               variant="outline-success"
               disabled={!selectedImage || isLoading || !listPlace} // Deshabilita el botón mientras se está cargando
             >
@@ -154,46 +188,24 @@ export const LeafPhoto = (props) => {
           </div>
         </Form>
         <Container>
-          <h1 className="mt-3">Seleccionar qué árbol corresponde</h1>
-          <Form>
-            {Object.values(listPlace)
-
-              .map((array, index) => {
-                if (Array.isArray(array)) {
-                  const filteredArray = array.filter((item) => item);
-                  const uniqueTreeNames = new Set();
-                  const renderedElements = [];
-                  let renderedCount = 0;
-                  for (const item of filteredArray) {
-                    if (!uniqueTreeNames.has(item[0]) && renderedCount < 6) {
-                      uniqueTreeNames.add(item[0]);
-                      renderedElements.push(item);
-                      renderedCount++;
-                    }
-                  }
-                  return renderedElements.map((item, subIndex) => (
-                    <div key={`${item[0]}-${index}-${subIndex}`}>
-                      <Button
-                        variant="light"
+          <Row>
+            <Col xs={{span:10, offset:1}} md={{span:6, offset:3}}>
+            <h1 className="mt-3">Árbol encontrado:</h1>
+          <Button variant="light"
                         active={
-                          selectedCheckbox === item[0] || Checkbox === item[0]
+                          selectedCheckbox === listPlace[0] || Checkbox === listPlace[0]
                         } // Usa selectedCheckbox en lugar de item
                         onClick={() => {
-                          handleCheckboxChange(item[0] ? item[0] : null); // Cambia item por algún valor específico
-                          validatePhoto();
-                        }}
-                      >
-                        {item[0] === "65dce9e9b4f9acb414fbefe9"
-                          ? "Otro"
-                          : item[0][1]}
-                      </Button>
-                      <PhotoViewer item={item} />
-                    </div>
-                  ));
-                }
-              })
-              .flat()}
-          </Form>
+                           // Cambia item por algún valor específico
+                          
+                        }}>
+          {listPlace[1]}
+          </Button>
+          
+          <Image src={listPlace[2]} />
+            </Col>
+          </Row>
+          
         </Container>
       </Row>
     </div>
