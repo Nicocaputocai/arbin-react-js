@@ -108,8 +108,8 @@ export const LeafPhotoPlantId = (props) => {
       <Row>
         <Form>
           <Row>
-            <Col xs md={{ offset: 2, md: 2 }}>
-              <div>
+            <Col md={{ offset: 4, span: 2 }}>
+              <div >
                 <img
                   className="h-16 w-16 object-cover rounded-full"
                   src={leafExample}
@@ -125,19 +125,19 @@ export const LeafPhotoPlantId = (props) => {
                   onChange={handleInputFileChange}
                   accept="image/*"
                   className="block w-full text-sm text-slate-500
-      file:mr-4 file:py-2 file:px-4
+       file:py-2 
       file:rounded-full file:border-0
       file:text-sm file:font-semibold
       file:bg-violet-50 file:text-violet-700
       hover:file:bg-violet-100 m-2"
-                  style={{ width: 100, height: "20 hv" }}
+                  // style={{ width: 100, height: "20 hv" }}
                 />
               </label>
             </Col>
           </Row>
           <br />
           <div>
-            <Col xs={{ span: 10, offset: 1 }} md={{ span: 6, offset: 4 }}>
+            <Col md={{ offset: 5, span: 2 }}>
               <img
                 style={{
                   maxHeight: "50vh",
@@ -156,7 +156,7 @@ export const LeafPhotoPlantId = (props) => {
             >
               {isLoading ? (
                 <svg
-                  className="animate-spin h-5 w-5 mr-3 text-white"
+                  className="animate-spin h-5 w-5 mr-3 text-green"
                   xmlns="https://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

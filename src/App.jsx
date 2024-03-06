@@ -10,7 +10,8 @@ import { Status } from "./components/stepts/Status";
 import { StrepperContext } from "./components/contexts/StepperContext";
 import { Finish } from "./components/stepts/Finish";
 import { LeafPhotoPlantId } from "./components/stepts/LeafPhotoPlantId";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Image, Row } from "react-bootstrap";
+const logo = "./arbin-high-resolution-logo-transparent.png";
 {
   /* The following line can be included in your src/index.js or App.js file */
 }
@@ -154,6 +155,7 @@ function App() {
 
   return (
     <Container>
+      <Image style={{height:'15vh',maxWidth: 'fit-content', marginLeft: 'auto', marginRight:"auto", borderStyle:"inset"}} src={logo}/>
       <Row>
         <div className="mt-5">
           <Stepper steps={steps} currentStep={currentStep} />

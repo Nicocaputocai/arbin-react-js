@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CensusTreesServices from "../../Services/CensusTreeService";
-import { Button, Form, Image, Modal } from "react-bootstrap";
+import { Button, Form, Image, Modal, Row, Col } from "react-bootstrap";
 
 export const Finish = (props) => {
   const {
@@ -14,6 +14,7 @@ export const Finish = (props) => {
     formValid 
   } = props;
   // console.log(formStatus);
+  const [isLoading, setIsLoading] = useState(false);
   const street = selectPosition?.address.road;
   const houeseNumber = selectPosition?.address.house_number;
   const [imagesConverter, setImagesConverter] = useState({});
@@ -59,9 +60,9 @@ export const Finish = (props) => {
       profileImg: imagesConverter.profileImg,
     });
   }, [imagesConverter]);
-console.log(Checkbox);
+// console.log(Checkbox);
   const initialFormCensusTree = {
-    tree: Checkbox[0],
+    tree: treeName,
     address: address,
     neightboardhood: neighbourhood,
     leafImg: null,
@@ -102,15 +103,17 @@ console.log(Checkbox);
   };
 
   const save = (e) => {
+    setIsLoading(true);
     e.preventDefault();
-    console.log(createFormData(createCensusTree).getAll("leafImg"));
+    // console.log(createFormData(createCensusTree).getAll("leafImg"));
     CensusTreesServices.createCensusTrees(createFormData(createCensusTree))
       .then(() => {
-        console.log(createCensusTree);
+        // console.log(createCensusTree);
         setSubmitted(true);
         handleShow(true);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(()=>{setIsLoading(false);});
   };
   const validateStatus = () => {
     const isValid =
@@ -133,21 +136,26 @@ console.log(Checkbox);
   return (
     <div>
       {submitted ? (
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Modal heading</Modal.Title>
-          </Modal.Header>
+        <div
+        className="modal show"
+        style={{ display: 'block', position: 'initial'}}
+      >
+        <Modal.Dialog show={show} onHide={handleClose}>
+          
           <Modal.Body>Árbol registrado correctamente</Modal.Body>
-          <Modal.Footer>
-            <Button variant="info" href="/">
-              Home
+          <Modal.Footer style={{ justifyContent: 'space-between' }}>
+            <Button variant="info" href="/" size="sm">
+              Censar árbol
             </Button>
-            <Button variant="success" href="/admin">
-              Volver al administrador
+            <Button variant="success" href="/" size="sm">
+              Volver al home
             </Button>
           </Modal.Footer>
-        </Modal>
+        </Modal.Dialog>
+        </div>
       ) : (
+        <Row>
+          <Col md={{span:5, offset:3}} xs={{ offset: 4, span: 2 }}>
         <form encType="multipart/form-data">
           <h3>Dirección (si no es correcta, modifíquela):</h3>
           <input
@@ -206,7 +214,7 @@ console.log(Checkbox);
           <h3>Peligro de caida:</h3>
           <input
             type="boolean"
-            defaultValue={formStatus?.fallingDanger}
+            defaultValue={formStatus?.fallingDanger === false ? "No hay peligro de caida":"Hay peligro de caida"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
@@ -231,11 +239,35 @@ console.log(Checkbox);
             name="diameter"
           />{" "}
           <br />
-          <Button variant="outline-success" type="submit" onClick={save} disabled={!formValid}>
-            {" "}
-            Enviar Formulio
+          <Button variant="outline-success" type="submit" onClick={save} disabled={!formValid ||isLoading}>
+          {isLoading ? (
+                <svg
+                  className="animate-spin h-5 w-5 mr-3 text-green"
+                  xmlns="https://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A8.004 8.004 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647zM12 20c4.418 0 8-3.582 8-8h-4c0 2.168-.837 4.154-2.191 5.657l-3.384-3.384A5.967 5.967 0 0012 14v6zm6.758-6.758l-3.38 3.382A5.969 5.969 0 0014 18h6c0-3.038-1.129-5.825-2.242-7.938z"
+                  ></path>
+                </svg>
+              ) : (
+                "Enviar formulario"
+              )}
           </Button>
         </form>
+        </Col>
+        </Row>
       )}
     </div>
   );
