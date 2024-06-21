@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">arbin</string>
+    <string name="title_activity_main">arbin</string>
+    <string name="package_name">desarrolloi.org</string>
+    <string name="custom_url_scheme">desarrolloi.org</string>
+</resources>

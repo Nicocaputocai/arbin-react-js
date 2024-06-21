@@ -1,0 +1,6 @@
+{
+  "appId": "desarrolloi.org",
+  "appName": "arbin",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
