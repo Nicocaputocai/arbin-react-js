@@ -57,7 +57,7 @@ export const LeafPhotoPlantId = (props) => {
       formData.append("file", selectedImage);
       var myHeaders = new Headers();
       myHeaders.append("Api-Key", API_KEY);
-      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Content-Type", "application/multipart/form-data");
 
       const requestOptions = {
         method: 'POST',

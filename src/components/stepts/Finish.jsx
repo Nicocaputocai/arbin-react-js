@@ -67,10 +67,17 @@ export const Finish = (props) => {
     neightboardhood: neighbourhood,
     leafImg: null,
     profileImg: null,
-    generalStatus: formStatus?.generalStatus,
+    generalStatus: formStatus?.damagedTrunk,
     fallingDanger: formStatus?.fallingDanger,
-    inclination: formStatus?.inclination,
-    diameter: formStatus?.diameter,
+    inclination: formStatus?.brokenSidewalk,
+    diameter: formStatus?.electricityCable,
+    generalStatus: formStatus?.sidewalk,
+    fallingDanger: formStatus?.sidewalkWidth,
+    inclination: formStatus?.cracks,
+    diameter: formStatus?.sprouts,
+    generalStatus: formStatus?.inclination,
+    fallingDanger: formStatus?.diameter,
+    inclination: formStatus?.height,
     coordinates: lat2 === undefined && lng2 === undefined ? latlng : latlng2,
   };
 
@@ -105,7 +112,7 @@ export const Finish = (props) => {
   const save = (e) => {
     setIsLoading(true);
     e.preventDefault();
-    // console.log(createFormData(createCensusTree).getAll("leafImg"));
+    console.log(createFormData(createCensusTree).getAll("leafImg"));
     CensusTreesServices.createCensusTrees(createFormData(createCensusTree))
       .then(() => {
         // console.log(createCensusTree);
@@ -122,10 +129,17 @@ export const Finish = (props) => {
       createCensusTree.neightboardhood !== "" &&
       createCensusTree.leafImg !== null &&
       createCensusTree.profileImg !== null &&
-      createCensusTree.generalStatus !== "" &&
+      createCensusTree.damagedTrunk !== "" &&
       createCensusTree.fallingDanger !== "" &&
+      createCensusTree.brokenSidewalk !== "" &&
+      createCensusTree.electricityCable !== "" &&
+      createCensusTree.sidewalk !== "" &&
+      createCensusTree.sidewalkWidth !== "" &&
+      createCensusTree.cracks !== "" &&
+      createCensusTree.sprouts !== "" &&
       createCensusTree.inclination !== "" &&
       createCensusTree.diameter !== "" &&
+      createCensusTree.height !== "" &&
       createCensusTree.coordinates !== "";
     
     handleFormValidityChange(isValid);
@@ -202,24 +216,84 @@ export const Finish = (props) => {
               style={{ textAlign: "center", margin: 1 }}
             />
           )}
-          <h3>Estado General:</h3>
+
+
+          <h3>Tronco dañado:</h3>
           <input
             type="text"
-            defaultValue={formStatus?.generalStatus}
+            defaultValue={formStatus?.damagedTrunk === false ? "No":"Si"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
-            name="generalStatus"
+            name="damagedTrunk"
           />
+
           <h3>Peligro de caida:</h3>
           <input
             type="boolean"
-            defaultValue={formStatus?.fallingDanger === false ? "No hay peligro de caida":"Hay peligro de caida"}
+            defaultValue={formStatus?.fallingDanger === false ? "No":"Si"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
             name="fallingDanger"
           />
+
+          <h3>Vereda rota:</h3>
+          <input
+            type="text"
+            defaultValue={formStatus?.brokenSidewalk === false ? "No":"Si"}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="brokenSidewalk"
+          />
+          <h3>Cable de electricidad:</h3>
+          <input
+            type="text"
+            defaultValue={formStatus?.electricityCable === false ? "No":"Si"}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="electricityCable"
+          />{" "}
+          <br />
+          <h3>Cazuela o vereda</h3>
+          <input
+            type="text"
+            defaultValue={formStatus?.sidewalk=== "cazuela" ? "cazuela":"Vereda"}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="sidewalk"
+          />
+          <h3>Ancho de vereda:</h3>
+          <input
+            type="boolean"
+            defaultValue={formStatus?.sidewalkWidth}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="sidewalkWidth"
+          />
+          <h3>Grietas:</h3>
+          <input
+            type="text"
+            defaultValue={formStatus?.cracks === false ? "No":"Si"}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="cracks"
+          />
+          <h3>Brotes:</h3>
+          <input
+            type="text"
+            defaultValue={formStatus?.sprouts === false ? "No":"Si"}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="sprouts"
+          />{" "}
+          <br />
           <h3>Inclinación:</h3>
           <input
             type="text"
@@ -231,13 +305,22 @@ export const Finish = (props) => {
           />
           <h3>Diámetro:</h3>
           <input
-            type="text"
+            type="boolean"
             defaultValue={formStatus?.diameter}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
             name="diameter"
-          />{" "}
+          />
+          <h3>Altura:</h3>
+          <input
+            type="text"
+            defaultValue={formStatus?.height}
+            onChange={handleInputChange}
+            style={{ textAlign: "center", margin: 1 }}
+            disabled
+            name="height"
+          />
           <br />
           <Button variant="outline-success" type="submit" onClick={save} disabled={!formValid ||isLoading}>
           {isLoading ? (

@@ -4,6 +4,6 @@ export default axios.create({
     baseURL: "https://arbin-api.divisioncode.net.ar/api",
     timeout:"40000ms",
     headers: {
-        'Content-Type': 'application/json', // ajusta el tipo de contenido según sea necesario
+        'Content-Type': 'application/multipart/form-data', // ajusta el tipo de contenido según sea necesario
       },
 })

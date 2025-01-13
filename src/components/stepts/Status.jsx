@@ -15,11 +15,17 @@ export const Status = (props) => {
 
     // Por ejemplo, podrías validar el estado del formulario aquí
     const isValid =
-      statusformData.generalStatus !== "" &&
+      statusformData.damagedTrunk !== "" &&
       statusformData.fallingDanger !== "" &&
+      statusformData.brokenSidewalk !== "" &&
+      statusformData.electricityCable !== "";
+      statusformData.sidewalk !== "" &&
+      statusformData.sidewalkWidth !== "" &&
+      statusformData.cracks !== "" &&
+      statusformData.sprouts !== "";      statusformData.damagedTrunk !== "" &&
       statusformData.inclination !== "" &&
-      statusformData.diameter !== "";
-
+      statusformData.diameter !== "" &&
+      statusformData.height !== "" &&
     // Llama a la función handleFormValidityChange para actualizar la validez del formulario
     handleFormValidityChange(isValid);
   }, [statusformData, handleFormValidityChange]);
@@ -41,29 +47,115 @@ export const Status = (props) => {
       <Container>
         <h1>Estado del árbol</h1>
         <Form>
-          <Form.Label className="m-4">Estado fitosanitario</Form.Label> <br />
+          <Form.Label className="m-4">Tronco dañado</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
-            name="generalStatus"
-            value={statusformData.generalStatus}
+            name="damagedTrunk"
+            value={statusformData.damagedTrunk}
             onChange={handleInputChange}
             style={{ ariaLabel: "Seleccione una opción" }}
           >
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
+            <option value={true}>Si</option>
+            <option value={false}>No</option>
           </Form.Select>{" "}
           <br />
+
           <Form.Label className="m-4">Peligro de caida</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
             name="fallingDanger"
             value={statusformData.fallingDanger}
+            onChange={handleInputChange}
+          >
+            <option value="" disabled>
+              Seleccione una opción
+            </option>
+            <option value={false}>No</option>
+            <option value={true}>Si</option>
+          </Form.Select>{" "}
+          <br />
+
+          <Form.Label className="m-4">Vereda rota</Form.Label> <br />
+          <Form.Select
+            aria-label="Seleccione una opción"
+            name="brokenSidewalk"
+            value={statusformData.brokenSidewalk}
+            onChange={handleInputChange}
+          >
+            <option value="" disabled>
+              Seleccione una opción
+            </option>
+            <option value={false}>No</option>
+            <option value={true}>Si</option>
+          </Form.Select>{" "}
+          <br />
+
+          <Form.Label className="m-4">Cable de electricidad</Form.Label> <br />
+          <Form.Select
+            aria-label="Seleccione una opción"
+            name="electricityCable"
+            value={statusformData.electricityCable}
+            onChange={handleInputChange}
+          >
+            <option value="" disabled>
+              Seleccione una opción
+            </option>
+            <option value={false}>No</option>
+            <option value={true}>Si</option>
+          </Form.Select>{" "}
+          <br />
+
+          <Form.Label className="m-4">Cazuela o vereda</Form.Label> <br />
+          <Form.Select
+            aria-label="Seleccione una opción"
+            name="sidewalk"
+            value={statusformData.sidewalk}
+            onChange={handleInputChange}
+          >
+            <option value="" disabled>
+              Seleccione una opción
+            </option>
+            <option value="cazuela">Cazuela</option>
+            <option value="vereda">Vereda</option>
+          </Form.Select>{" "}
+          <br />
+
+          <Form.Label>Ancho de vereda</Form.Label>
+          <div className="bg-white my-2 p-1 flex border border-gray-200">
+            <input
+              type="text"
+              name="sidewalkWidth"
+              value={statusformData.sidewalkWidth}
+              onChange={handleInputChange}
+              className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
+              placeholder="Solo números"
+            />
+          </div>
+          <br />
+
+          <Form.Label className="m-4">Grietas</Form.Label> <br />
+          <Form.Select
+            aria-label="Seleccione una opción"
+            name="cracks"
+            value={statusformData.cracks}
+            onChange={handleInputChange}
+          >
+            <option value="" disabled>
+              Seleccione una opción
+            </option>
+            <option value={false}>No</option>
+            <option value={true}>Si</option>
+          </Form.Select>{" "}
+          <br />
+
+          <Form.Label className="m-4">Brotes</Form.Label> <br />
+          <Form.Select
+            aria-label="Seleccione una opción"
+            name="sprouts"
+            value={statusformData.sprouts}
             onChange={handleInputChange}
           >
             <option value="" disabled>
@@ -84,12 +176,26 @@ export const Status = (props) => {
               placeholder="Solo números"
             />
           </div>
+          <br />
+
           <Form.Label>Diámetro en cm</Form.Label>
           <div className="bg-white my-2 p-1 flex border border-gray-200">
             <input
               type="text"
               name="diameter"
               value={statusformData.diameter}
+              onChange={handleInputChange}
+              className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
+              placeholder="Solo números"
+            />
+          </div>
+          <br />
+          <Form.Label>Altura en cm</Form.Label>
+          <div className="bg-white my-2 p-1 flex border border-gray-200">
+            <input
+              type="text"
+              name="height"
+              value={statusformData.height}
               onChange={handleInputChange}
               className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
               placeholder="Solo números"
