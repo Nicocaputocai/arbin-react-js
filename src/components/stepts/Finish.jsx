@@ -61,41 +61,42 @@ export const Finish = (props) => {
     });
   }, [imagesConverter]);
 // console.log(Checkbox);
-  const initialFormCensusTree = {
-    tree: treeName,
-    address: address,
-    neightboardhood: neighbourhood,
-    leafImg: null,
-    profileImg: null,
-    generalStatus: formStatus?.damagedTrunk,
-    fallingDanger: formStatus?.fallingDanger,
-    inclination: formStatus?.brokenSidewalk,
-    diameter: formStatus?.electricityCable,
-    generalStatus: formStatus?.sidewalk,
-    fallingDanger: formStatus?.sidewalkWidth,
-    inclination: formStatus?.cracks,
-    diameter: formStatus?.sprouts,
-    generalStatus: formStatus?.inclination,
-    fallingDanger: formStatus?.diameter,
-    inclination: formStatus?.height,
-    coordinates: lat2 === undefined && lng2 === undefined ? latlng : latlng2,
-  };
+const initialFormCensusTree = {
+  tree: treeName,
+  address: address,
+  neightboardhood: neighbourhood,
+  leafImg: null,
+  profileImg: null,
+  fallingDanger: formStatus?.fallingDanger === true, // Booleano
+  damagedTrunk: formStatus?.damagedTrunk === true, // Booleano
+  cracks: formStatus?.cracks === "" ? null : formStatus?.cracks, // Asegúrate de que no sea una cadena vacía si es null
+  diameter: parseInt(formStatus?.diameter, 10), // Convertir a número
+  electricityCable: formStatus?.electricityCable === true, // Booleano
+  height: parseInt(formStatus?.height, 10), // Convertir a número
+  inclination: parseInt(formStatus?.inclination, 10), // Convertir a número
+  sidewalk: formStatus?.sidewalk === "cazuela" ? "cazuela" : "Vereda", // Asegurar que se asigna correctamente
+  sidewalkWidth: parseInt(formStatus?.sidewalkWidth, 10), // Convertir a número
+  sprouts: formStatus?.sprouts === true, // Booleano
+  coordinates: lat2 === undefined && lng2 === undefined ? latlng : latlng2,
+};
 
-  const createFormData = (data) => {
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      if (key === "leafImg" || key === "profileImg") {
-        // Si la clave es una imagen, la agregamos al formData como un archivo
-        if (data[key]) {
-          formData.append(key, data[key]);
-        }
-      } else {
-        // Si no es una imagen, la agregamos normalmente
+
+
+
+const createFormData = (data) => {
+  const formData = new FormData();
+  Object.keys(data).forEach((key) => {
+    if (key === "leafImg" || key === "profileImg") {
+      if (data[key]) {
         formData.append(key, data[key]);
       }
-    });
-    return formData;
-  };
+    } else {
+      formData.append(key, data[key]);
+    }
+  });
+  console.log(formData); // Verificar que el FormData esté correcto
+  return formData;
+};
   const [createCensusTree, setCreateCensusTree] = useState(
     initialFormCensusTree
   );

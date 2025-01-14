@@ -4,10 +4,17 @@ import { Container, Form } from "react-bootstrap";
 export const Status = (props) => {
   const { handleFormValidityChange, handleFormSubmit } = props;
   const [statusformData, setStatusFormData] = useState({
-    generalStatus: "",
+    damagedTrunk: "",
     fallingDanger: "",
+    brokenSidewalk: "",
+    electricityCable: "",
+    sidewalk: "",
+    sidewalkWidth: "",
+    cracks: "",
+    sprouts: "",
     inclination: "",
     diameter: "",
+    height: "",
   });
   useEffect(() => {
     // Aquí puedes realizar cualquier acción cada vez que formStatus cambie
@@ -19,28 +26,40 @@ export const Status = (props) => {
       statusformData.fallingDanger !== "" &&
       statusformData.brokenSidewalk !== "" &&
       statusformData.electricityCable !== "";
-      statusformData.sidewalk !== "" &&
+    statusformData.sidewalk !== "" &&
       statusformData.sidewalkWidth !== "" &&
       statusformData.cracks !== "" &&
-      statusformData.sprouts !== "";      statusformData.damagedTrunk !== "" &&
-      statusformData.inclination !== "" &&
+      statusformData.sprouts !== "";
+    statusformData.inclination !== "" &&
       statusformData.diameter !== "" &&
       statusformData.height !== "" &&
-    // Llama a la función handleFormValidityChange para actualizar la validez del formulario
-    handleFormValidityChange(isValid);
+      // Llama a la función handleFormValidityChange para actualizar la validez del formulario
+      handleFormValidityChange(isValid);
   }, [statusformData, handleFormValidityChange]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setStatusFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-
+  
+    // Verifica si el campo es un campo booleano (si debe ser "true" o "false")
+    if (value === "true" || value === "false") {
+      setStatusFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value === "true", // Convierte a booleano
+      }));
+    } else {
+      // Si no es un campo booleano, conviértelo a un número si es posible
+      setStatusFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value, // Mantén el valor tal cual si no es booleano
+      }));
+    }
+  
+    // Llama a la función handleFormSubmit con los datos actualizados del formulario
     if (typeof handleFormSubmit === "function") {
-      handleFormSubmit({ ...statusformData, [name]: value }); // Llama a la función handleFormSubmit con los datos actualizados del formulario
+      handleFormSubmit({ ...statusformData, [name]: value });
     }
   };
+  
 
   return (
     <div>
@@ -58,11 +77,10 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value={true}>Si</option>
-            <option value={false}>No</option>
+            <option value="false">No</option>
+            <option value="true">Si</option>
           </Form.Select>{" "}
           <br />
-
           <Form.Label className="m-4">Peligro de caida</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -73,11 +91,10 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value={false}>No</option>
-            <option value={true}>Si</option>
+            <option value="false">No</option>
+            <option value="true">Si</option>
           </Form.Select>{" "}
           <br />
-
           <Form.Label className="m-4">Vereda rota</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -88,11 +105,10 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value={false}>No</option>
-            <option value={true}>Si</option>
+            <option value="false">No</option>
+            <option value="true">Si</option>
           </Form.Select>{" "}
           <br />
-
           <Form.Label className="m-4">Cable de electricidad</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -103,11 +119,10 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value={false}>No</option>
-            <option value={true}>Si</option>
+            <option value="false">No</option>
+            <option value="true">Si</option>
           </Form.Select>{" "}
           <br />
-
           <Form.Label className="m-4">Cazuela o vereda</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -122,7 +137,6 @@ export const Status = (props) => {
             <option value="vereda">Vereda</option>
           </Form.Select>{" "}
           <br />
-
           <Form.Label>Ancho de vereda</Form.Label>
           <div className="bg-white my-2 p-1 flex border border-gray-200">
             <input
@@ -130,12 +144,11 @@ export const Status = (props) => {
               name="sidewalkWidth"
               value={statusformData.sidewalkWidth}
               onChange={handleInputChange}
-              className="p-1 px-2 apprearance-none outline-none w-full text-gray-800"
+              className="p-1 px-2 appearance-none outline-none w-full text-gray-800"
               placeholder="Solo números"
             />
           </div>
           <br />
-
           <Form.Label className="m-4">Grietas</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -146,11 +159,10 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value={false}>No</option>
-            <option value={true}>Si</option>
+            <option value="false">No</option>
+            <option value="true">Si</option>
           </Form.Select>{" "}
           <br />
-
           <Form.Label className="m-4">Brotes</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -161,8 +173,8 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value={false}>No</option>
-            <option value={true}>Si</option>
+            <option value="false">No</option>
+            <option value="true">Si</option>
           </Form.Select>{" "}
           <br />
           <Form.Label>Inclinación</Form.Label>
@@ -177,7 +189,6 @@ export const Status = (props) => {
             />
           </div>
           <br />
-
           <Form.Label>Diámetro en cm</Form.Label>
           <div className="bg-white my-2 p-1 flex border border-gray-200">
             <input
