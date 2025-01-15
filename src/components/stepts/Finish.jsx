@@ -67,16 +67,17 @@ const initialFormCensusTree = {
   neightboardhood: neighbourhood,
   leafImg: null,
   profileImg: null,
-  fallingDanger: formStatus?.fallingDanger === true, // Booleano
-  damagedTrunk: formStatus?.damagedTrunk === true, // Booleano
-  cracks: formStatus?.cracks === "" ? null : formStatus?.cracks, // Asegúrate de que no sea una cadena vacía si es null
-  diameter: parseInt(formStatus?.diameter, 10), // Convertir a número
-  electricityCable: formStatus?.electricityCable === true, // Booleano
-  height: parseInt(formStatus?.height, 10), // Convertir a número
-  inclination: parseInt(formStatus?.inclination, 10), // Convertir a número
-  sidewalk: formStatus?.sidewalk === "cazuela" ? "cazuela" : "Vereda", // Asegurar que se asigna correctamente
-  sidewalkWidth: parseInt(formStatus?.sidewalkWidth, 10), // Convertir a número
-  sprouts: formStatus?.sprouts === true, // Booleano
+  brokenSidewalk: formStatus?.brokenSidewalk,
+  fallingDanger: formStatus?.fallingDanger, // Booleano
+  damagedTrunk: formStatus?.damagedTrunk, // Booleano
+  cracks: formStatus?.cracks , // Asegúrate de que no sea una cadena vacía si es null
+  diameter: parseInt(formStatus?.diameter), // Convertir a número
+  electricityCable: formStatus?.electricityCable,// Booleano
+  height: parseInt(formStatus?.height), // Convertir a número
+  inclination: parseInt(formStatus?.inclination), // Convertir a número
+  sidewalk: formStatus?.sidewalk , // Asegurar que se asigna correctamente
+  sidewalkWidth: parseInt(formStatus?.sidewalkWidth), // Convertir a número
+  sprouts: formStatus?.sprouts , // Booleano
   coordinates: lat2 === undefined && lng2 === undefined ? latlng : latlng2,
 };
 
@@ -158,10 +159,11 @@ const createFormData = (data) => {
         <Modal.Dialog show={show} onHide={handleClose}>
           
           <Modal.Body>Árbol registrado correctamente</Modal.Body>
-          <Modal.Footer style={{ justifyContent: 'space-between' }}>
-            <Button variant="info" href="/" size="sm">
+          {/* <Modal.Footer style={{ justifyContent: 'space-between' }}> */}
+          <Modal.Footer style={{ justifyContent: 'center' }}>
+            {/* <Button variant="info" href="/" size="sm">
               Censar árbol
-            </Button>
+            </Button> */}
             <Button variant="success" href="/" size="sm">
               Volver al home
             </Button>
@@ -222,7 +224,7 @@ const createFormData = (data) => {
           <h3>Tronco dañado:</h3>
           <input
             type="text"
-            defaultValue={formStatus?.damagedTrunk === false ? "No":"Si"}
+            defaultValue={formStatus?.damagedTrunk == "1" ? "Si" : "No"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
@@ -232,7 +234,7 @@ const createFormData = (data) => {
           <h3>Peligro de caida:</h3>
           <input
             type="boolean"
-            defaultValue={formStatus?.fallingDanger === false ? "No":"Si"}
+            defaultValue={formStatus?.fallingDanger =="1" ? "Si" : "No"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
@@ -242,7 +244,7 @@ const createFormData = (data) => {
           <h3>Vereda rota:</h3>
           <input
             type="text"
-            defaultValue={formStatus?.brokenSidewalk === false ? "No":"Si"}
+            defaultValue={formStatus?.brokenSidewalk == "1" ? "Si" : "No"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
@@ -251,7 +253,7 @@ const createFormData = (data) => {
           <h3>Cable de electricidad:</h3>
           <input
             type="text"
-            defaultValue={formStatus?.electricityCable === false ? "No":"Si"}
+            defaultValue={formStatus?.electricityCable == "1" ? "Si" : "No"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
@@ -279,7 +281,7 @@ const createFormData = (data) => {
           <h3>Grietas:</h3>
           <input
             type="text"
-            defaultValue={formStatus?.cracks === false ? "No":"Si"}
+            defaultValue={formStatus?.cracks == "1" ? "Si" : "No"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled
@@ -288,7 +290,7 @@ const createFormData = (data) => {
           <h3>Brotes:</h3>
           <input
             type="text"
-            defaultValue={formStatus?.sprouts === false ? "No":"Si"}
+            defaultValue={formStatus?.sprouts == "1" ? "Si" : "No"}
             onChange={handleInputChange}
             style={{ textAlign: "center", margin: 1 }}
             disabled

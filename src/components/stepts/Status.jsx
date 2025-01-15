@@ -17,8 +17,10 @@ export const Status = (props) => {
     height: "",
   });
   useEffect(() => {
-    // Aquí puedes realizar cualquier acción cada vez que formStatus cambie
-    console.log("FormStatus ha cambiado:", statusformData);
+    if (props.statusformData) {
+      setStatusFormData(props.statusformData);
+    }
+    // console.log("FormStatus ha cambiado:", statusformData);
 
     // Por ejemplo, podrías validar el estado del formulario aquí
     const isValid =
@@ -26,11 +28,11 @@ export const Status = (props) => {
       statusformData.fallingDanger !== "" &&
       statusformData.brokenSidewalk !== "" &&
       statusformData.electricityCable !== "";
-    statusformData.sidewalk !== "" &&
+      statusformData.sidewalk !== "" &&
       statusformData.sidewalkWidth !== "" &&
       statusformData.cracks !== "" &&
       statusformData.sprouts !== "";
-    statusformData.inclination !== "" &&
+      statusformData.inclination !== "" &&
       statusformData.diameter !== "" &&
       statusformData.height !== "" &&
       // Llama a la función handleFormValidityChange para actualizar la validez del formulario
@@ -39,7 +41,7 @@ export const Status = (props) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-  
+
     // Verifica si el campo es un campo booleano (si debe ser "true" o "false")
     if (value === "true" || value === "false") {
       setStatusFormData((prevFormData) => ({
@@ -53,13 +55,12 @@ export const Status = (props) => {
         [name]: value, // Mantén el valor tal cual si no es booleano
       }));
     }
-  
+
     // Llama a la función handleFormSubmit con los datos actualizados del formulario
     if (typeof handleFormSubmit === "function") {
       handleFormSubmit({ ...statusformData, [name]: value });
     }
   };
-  
 
   return (
     <div>
@@ -77,8 +78,8 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value="false">No</option>
-            <option value="true">Si</option>
+            <option value={0}>No</option>
+            <option value={1}>Si</option>
           </Form.Select>{" "}
           <br />
           <Form.Label className="m-4">Peligro de caida</Form.Label> <br />
@@ -91,22 +92,8 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value="false">No</option>
-            <option value="true">Si</option>
-          </Form.Select>{" "}
-          <br />
-          <Form.Label className="m-4">Vereda rota</Form.Label> <br />
-          <Form.Select
-            aria-label="Seleccione una opción"
-            name="brokenSidewalk"
-            value={statusformData.brokenSidewalk}
-            onChange={handleInputChange}
-          >
-            <option value="" disabled>
-              Seleccione una opción
-            </option>
-            <option value="false">No</option>
-            <option value="true">Si</option>
+            <option value={0}>No</option>
+            <option value={1}>Si</option>
           </Form.Select>{" "}
           <br />
           <Form.Label className="m-4">Cable de electricidad</Form.Label> <br />
@@ -119,8 +106,8 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value="false">No</option>
-            <option value="true">Si</option>
+            <option value={0}>No</option>
+            <option value={1}>Si</option>
           </Form.Select>{" "}
           <br />
           <Form.Label className="m-4">Cazuela o vereda</Form.Label> <br />
@@ -137,18 +124,6 @@ export const Status = (props) => {
             <option value="vereda">Vereda</option>
           </Form.Select>{" "}
           <br />
-          <Form.Label>Ancho de vereda</Form.Label>
-          <div className="bg-white my-2 p-1 flex border border-gray-200">
-            <input
-              type="text"
-              name="sidewalkWidth"
-              value={statusformData.sidewalkWidth}
-              onChange={handleInputChange}
-              className="p-1 px-2 appearance-none outline-none w-full text-gray-800"
-              placeholder="Solo números"
-            />
-          </div>
-          <br />
           <Form.Label className="m-4">Grietas</Form.Label> <br />
           <Form.Select
             aria-label="Seleccione una opción"
@@ -159,8 +134,8 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value="false">No</option>
-            <option value="true">Si</option>
+            <option value={0}>No</option>
+            <option value={1}>Si</option>
           </Form.Select>{" "}
           <br />
           <Form.Label className="m-4">Brotes</Form.Label> <br />
@@ -173,9 +148,35 @@ export const Status = (props) => {
             <option value="" disabled>
               Seleccione una opción
             </option>
-            <option value="false">No</option>
-            <option value="true">Si</option>
+            <option value={0}>No</option>
+            <option value={1}>Si</option>
           </Form.Select>{" "}
+          <br />
+          <Form.Label className="m-4">Vereda rota</Form.Label> <br />
+          <Form.Select
+            aria-label="Seleccione una opción"
+            name="brokenSidewalk"
+            value={statusformData.brokenSidewalk}
+            onChange={handleInputChange}
+          >
+            <option value="" disabled>
+              Seleccione una opción
+            </option>
+            <option value={0}>No</option>
+            <option value={1}>Si</option>
+          </Form.Select>{" "}
+          <br />
+          <Form.Label>Ancho de vereda</Form.Label>
+          <div className="bg-white my-2 p-1 flex border border-gray-200">
+            <input
+              type="text"
+              name="sidewalkWidth"
+              value={statusformData.sidewalkWidth}
+              onChange={handleInputChange}
+              className="p-1 px-2 appearance-none outline-none w-full text-gray-800"
+              placeholder="Solo números"
+            />
+          </div>
           <br />
           <Form.Label>Inclinación</Form.Label>
           <div className="bg-white my-2 p-1 flex border border-gray-200">
