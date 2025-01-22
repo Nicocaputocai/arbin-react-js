@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet"
 import L from 'leaflet'
 import '../../../node_modules/leaflet/dist/leaflet.css';
@@ -43,7 +43,7 @@ function ResetCenterView(props) {
   export const Ubication = (props) => {
     const { position, setPosition, selectPosition } = props;
     const locationSelection = [selectPosition?.lat, selectPosition?.lon];
-  
+    const API_KEY = import.meta.env.VITE_KEY_PLANT_ID
     function DraggableMarker() {
       const markerRef = useRef(null);
   
@@ -87,7 +87,7 @@ function ResetCenterView(props) {
               maxBounds={[[-85.06, -180], [85.06, 180]]}
             >
               <TileLayer
-                url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key={sk.eyJ1Ijoibmljb2NhcHV0b2NhaSIsImEiOiJja3RhazVpbzcwMzJhMndvNmZpNGJtbWhrIn0.YV17IMSMs1UQFzyqqhRIdA}"
+                url= {`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${API_KEY}`}
               />
               {locationSelection !== undefined && <DraggableMarker />}
               <ResetCenterView selectPosition={selectPosition} />
@@ -103,7 +103,7 @@ function ResetCenterView(props) {
               maxBounds={[[-85.06, -180], [85.06, 180]]}
             >
               <TileLayer
-                url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key={sk.eyJ1Ijoibmljb2NhcHV0b2NhaSIsImEiOiJja3RhazVpbzcwMzJhMndvNmZpNGJtbWhrIn0.YV17IMSMs1UQFzyqqhRIdA}"
+                url={`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${API_KEY}`}
               />
               {locationSelection !== undefined && <DraggableMarker />}
               <ResetCenterView selectPosition={selectPosition} />

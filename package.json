@@ -1,6 +1,6 @@
 {
   "name": "Arbin",
-  "author":"Desarrollo i",
+  "author": "Desarrollo i",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "18": "^0.0.0",
     "@capacitor/android": "^6.1.0",
     "@capacitor/cli": "^6.1.0",
     "@capacitor/core": "^6.1.0",
