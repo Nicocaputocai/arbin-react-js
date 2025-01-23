@@ -10,16 +10,19 @@ import { Status } from "./components/stepts/Status";
 import { StrepperContext } from "./components/contexts/StepperContext";
 import { Finish } from "./components/stepts/Finish";
 import { LeafPhotoPlantId } from "./components/stepts/LeafPhotoPlantId";
-import { Col, Container, Image, Row } from "react-bootstrap";
+import { Button, Col, Container, Image, Row } from "react-bootstrap";
+import { Login } from "./components/Login";
 const logo = "./arbin-high-resolution-logo-transparent.png";
 {
   /* The following line can be included in your src/index.js or App.js file */
 }
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
 // const position = [-34.7033363, -58.3953235];
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
   const [currentStep, setCurrentStep] = useState(1);
   const [userData, setUserData] = useState("");
   const [finalData, setFinalData] = useState([]);
@@ -153,9 +156,24 @@ function App() {
     setFormValid(isValid);
   };
 
+  const logout = () => {
+    if (window.confirm("¿Estás seguro de que quieres cerrar sesión?")) {
+      localStorage.removeItem("token");
+      setIsAuthenticated(false);
+    }
+  };
+  
   return (
-    <Container>
+    <div>
       <Image style={{height:'15vh',maxWidth: 'fit-content', marginLeft: 'auto', marginRight:"auto", borderStyle:"inset"}} src={logo}/>
+          {!isAuthenticated ? (
+            <Container>
+              <Login setIsAuthenticated={setIsAuthenticated} />
+            </Container>
+         // Mostrar login si no está autenticado
+      ) : (
+    <Container>
+      <Button variant="outline-primary" onClick={logout}>Cerrar sesión</Button>
       <Row>
         <div className="mt-5">
           <Stepper steps={steps} currentStep={currentStep} />
@@ -189,6 +207,8 @@ function App() {
         </Col>
       </Row>
     </Container>
+            )}
+            </div>
   );
 }
 
