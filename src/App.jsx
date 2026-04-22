@@ -28,33 +28,27 @@ function App() {
   const [Checkbox, setCheckbox] = useState(null);
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
-  const [formStatus, setFormStatus] = useState(null);
   const [position, setPosition] = useState(null);
   const handleShow = () => setShow(true); //Modal de confirmación
 
-  const [finishForm, setFinishForm] = useState({
-    idTree: "",
-    address: "",
-    neightboardhood: "",
-    leafImg: null,
-    profileImg: null,
-    generalStatus: "",
-    fallingDanger: "",
-    inclination: "",
-    diameter: "",
-    coordinates: "",
-  });
+  // const [finishForm, setFinishForm] = useState({
+  //   address: "",
+  //   neightboardhood: "",
+  //   leafImg: null,
+  //   profileImg: null,
+  //   coordinates: "",
+  // });
 
-  const handleFormSubmit = (data) => {
-    setFormStatus(data);
-  };
+  // const handleFormSubmit = (data) => {
+  //   setFormStatus(data);
+  // };
 
   const steps = [
     "Dirección",
     "Ubicación",
     "Foto de la hoja",
     "Foto del perfil",
-    "Estado",
+    // "Estado",
     "Finalizar",
   ];
   const handleSave = () => {
@@ -102,22 +96,14 @@ function App() {
         );
       case 5:
         return (
-          <Status
-            handleFormValidityChange={handleFormValidityChange}
-            handleFormSubmit={handleFormSubmit}
-          />
-        );
-      case 6:
-        return (
           <Finish
             selectPosition={selectPosition}
             Checkbox={Checkbox}
             fotoHoja={fotoHoja}
             fotoPerfil={fotoPerfil}
-            formStatus={formStatus}
             position={position}
-            setFinishForm={setFinishForm}
-            finishForm={finishForm}
+            // setFinishForm={setFinishForm}
+            // finishForm={finishForm}
             handleFormValidityChange={handleFormValidityChange}
             formValid={formValid}
           />
