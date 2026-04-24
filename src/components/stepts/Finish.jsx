@@ -17,7 +17,14 @@ export const Finish = (props) => {
   const street = selectPosition?.address?.road || "";
   const houeseNumber = selectPosition?.address?.house_number || "";
   const address = `${street} ${houeseNumber}`.trim();
-  const neighbourhood = selectPosition?.address?.neighbourhood || "";
+  // const neighbourhood = selectPosition?.address?.neighbourhood || "";
+  const neighbourhood = 
+    selectPosition?.address?.neighbourhood || 
+    selectPosition?.address?.suburb || 
+    selectPosition?.address?.city_district || 
+    selectPosition?.address?.quarter ||
+    selectPosition?.address?.residential || 
+    "";
   const lat = selectPosition?.lat;
   const lng = selectPosition?.lon;
 
@@ -131,13 +138,13 @@ export const Finish = (props) => {
         <div className="modal show" style={{ display: "block", position: "initial" }}>
           <Modal.Dialog show={show} onHide={handleClose}>
             <Modal.Body>Árbol registrado correctamente</Modal.Body>
-            <Modal.Footer style={{ justifyContent: "space-between" }}>
+            <Modal.Footer style={{ justifyContent:"center" }}>
               <Button variant="info" href="/" size="sm">
-                Censar árbol
+                Relevar otro árbol
               </Button>
-              <Button variant="success" href="/" size="sm">
+              {/* <Button variant="success" href="/" size="sm">
                 Volver al home
-              </Button>
+              </Button> */}
             </Modal.Footer>
           </Modal.Dialog>
         </div>

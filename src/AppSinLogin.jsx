@@ -1,38 +1,39 @@
 import { useState } from "react";
 import "./App.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-
-// Componentes del Stepper
 import { Stepper } from "./components/Stepper";
 import { StepperControl } from "./components/StepperControl";
 import { Address } from "./components/stepts/Address";
 import { Ubication } from "./components/stepts/Ubication";
+import { LeafPhoto } from "./components/stepts/LeafPhoto";
 import { ProfilePhoto } from "./components/stepts/ProfilePhoto";
+import { Status } from "./components/stepts/Status";
 import { StrepperContext } from "./components/contexts/StepperContext";
 import { Finish } from "./components/stepts/Finish";
 import { LeafPhotoPlantId } from "./components/stepts/LeafPhotoPlantId";
-
-// Componentes de Autenticación
+import { Col, Container, Image, Row } from "react-bootstrap";
 import { Login } from "./components/Login";
 import AuthService from "./Services/AuthService";
-
-import { Col, Container, Image, Row, Button } from "react-bootstrap";
-
 const logo = "./arbin-high-resolution-logo-transparent.png";
+{
+  /* The following line can be included in your src/index.js or App.js file */
+}
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// const position = [-34.7033363, -58.3953235];
 
 function App() {
-  // --- ESTADOS DEL FORMULARIO ---
   const [currentStep, setCurrentStep] = useState(1);
   const [userData, setUserData] = useState("");
   const [finalData, setFinalData] = useState([]);
   const [selectPosition, setSelectPosition] = useState(null);
-  const [formValid, setFormValid] = useState(false);
+  const [formValid, setFormValid] = useState(false); // Estado para rastrear la validez del formulario
   const [Checkbox, setCheckbox] = useState(null);
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [position, setPosition] = useState(null);
-
+  const handleShow = () => setShow(true); //Modal de confirmación
   // --- LÓGICA DE AUTENTICACIÓN ---
+  // Verifica si ya hay un token al recargar la página
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
 
   const handleLoginSuccess = () => {
@@ -42,7 +43,8 @@ function App() {
   const handleLogout = () => {
     AuthService.logout();
     setIsAuthenticated(false);
-    setCurrentStep(1); // Reiniciamos el stepper al salir para mayor seguridad
+    // Opcional: Reiniciar el Stepper al salir
+    setCurrentStep(1); 
   };
 
   // Si no está autenticado, interceptamos el render y mostramos solo el Login
@@ -51,13 +53,29 @@ function App() {
   }
   // -------------------------------
 
+  // const [finishForm, setFinishForm] = useState({
+  //   address: "",
+  //   neightboardhood: "",
+  //   leafImg: null,
+  //   profileImg: null,
+  //   coordinates: "",
+  // });
+
+  // const handleFormSubmit = (data) => {
+  //   setFormStatus(data);
+  // };
+
   const steps = [
     "Dirección",
     "Ubicación",
     "Foto de la hoja",
     "Foto del perfil",
+    // "Estado",
     "Finalizar",
   ];
+  const handleSave = () => {
+    save();
+  };
 
   const displayStep = (step) => {
     switch (step) {
@@ -87,6 +105,7 @@ function App() {
             setCheckbox={setCheckbox}
             setfotoHoja={setfotoHoja}
             fotoHoja={fotoHoja}
+            
           />
         );
       case 4:
@@ -105,28 +124,36 @@ function App() {
             fotoHoja={fotoHoja}
             fotoPerfil={fotoPerfil}
             position={position}
+            // setFinishForm={setFinishForm}
+            // finishForm={finishForm}
             handleFormValidityChange={handleFormValidityChange}
             formValid={formValid}
           />
         );
-      default:
-        return null;
     }
   };
+
+  
 
   const handleClick = (direction) => {
     let newStep = currentStep;
 
-    // Verificar si el usuario intenta avanzar o retroceder
+    // Verificar si el usuario intenta avanzar
     if (direction === "Siguiente" && formValid !== false) {
       newStep++;
     } else {
       newStep--;
     }
 
-    // Asegurarse de que el nuevo paso esté dentro del rango y no intente pasar del último
-    if (newStep > 0 && newStep <= steps.length) {
-      setCurrentStep(newStep);
+    // Verificar si se llega al último paso y la dirección es "Siguiente"
+    if (currentStep === steps.length && direction === "Siguiente") {
+      // Lógica para enviar el formulario
+      enviarFormulario(); // Esta es la función para enviar el formulario
+    } else {
+      // Asegurarse de que el nuevo paso esté dentro del rango de pasos
+      if (newStep > 0 && newStep <= steps.length) {
+        setCurrentStep(newStep);
+      }
     }
   };
 
@@ -136,30 +163,14 @@ function App() {
 
   return (
     <Container>
-      {/* Botón de cerrar sesión en la esquina superior derecha */}
-      <div className="d-flex justify-content-end mt-3 mb-2">
-        <Button variant="outline-danger" size="sm" onClick={handleLogout}>
-          Cerrar Sesión
-        </Button>
-      </div>
-
-      <Image
-        style={{
-          height: "15vh",
-          maxWidth: "fit-content",
-          display: "block",
-          marginLeft: "auto",
-          marginRight: "auto",
-          borderStyle: "inset",
-        }}
-        src={logo}
-      />
+      <Image style={{height:'15vh',maxWidth: 'fit-content', marginLeft: 'auto', marginRight:"auto", borderStyle:"inset"}} src={logo}/>
       <Row>
-        <div className="mt-4">
+        <div className="mt-5">
           <Stepper steps={steps} currentStep={currentStep} />
         </div>
-        <Col>
+        <Col >
           <div className="my-10">
+            {/* Paso el manejador de cambio de validez del formulario a cada paso */}
             <StrepperContext.Provider
               value={{
                 userData,
@@ -174,12 +185,13 @@ function App() {
           </div>
 
           <div>
-            {/* El StepperControl sigue manejando los botones Atrás/Siguiente */}
+            {/* Deshabilito el botón "Siguiente" si el formulario no es válido */}
             <StepperControl
               handleClick={handleClick}
               currentStep={currentStep}
               steps={steps}
               formValid={formValid}
+              save={handleSave}
             />
           </div>
         </Col>
