@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Button, Form, Container, Row, Col, Alert, Image } from "react-bootstrap";
+import {
+  Button,
+  Form,
+  Container,
+  Row,
+  Col,
+  Alert,
+  Image,
+} from "react-bootstrap";
 import AuthService from "../Services/AuthService";
 
 const logo = "./arbin-high-resolution-logo-transparent.png"; // Usamos tu mismo logo
@@ -20,9 +28,14 @@ export const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await AuthService.login(credentials.user, credentials.password);
+      const response = await AuthService.login(
+        credentials.user,
+        credentials.password,
+      );
       // Guardamos el token
       localStorage.setItem("token", response.token);
+      // GUARDAMOS EL NOMBRE DE USUARIO
+      localStorage.setItem("username", credentials.user);
       // Le avisamos a App.jsx que el login fue exitoso
       onLoginSuccess();
     } catch (err) {
@@ -37,14 +50,18 @@ export const Login = ({ onLoginSuccess }) => {
       <Row>
         <Col xs={{ span: 10, offset: 1 }} md={{ span: 6, offset: 3 }}>
           <div className="text-center mb-4">
-            <Image 
-              src={logo} 
-              style={{ height: '15vh', maxWidth: 'fit-content', borderStyle: "inset" }} 
+            <Image
+              src={logo}
+              style={{
+                height: "15vh",
+                maxWidth: "fit-content",
+                borderStyle: "inset",
+              }}
             />
           </div>
-          
+
           <h3 className="text-center mb-4">Acceso Censo Arbolado</h3>
-          
+
           {error && <Alert variant="danger">{error}</Alert>}
 
           <Form onSubmit={handleSubmit}>
@@ -73,7 +90,11 @@ export const Login = ({ onLoginSuccess }) => {
             </Form.Group>
 
             <div className="d-grid gap-2">
-              <Button variant="success" type="submit" disabled={isLoading}>
+              <Button
+                variant="outline-success"
+                type="submit"
+                disabled={isLoading}
+              >
                 {isLoading ? "Validando..." : "Ingresar"}
               </Button>
             </div>

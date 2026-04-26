@@ -1,23 +1,41 @@
 import React from 'react'
 import { Button, Col, Container, Row } from 'react-bootstrap'
 
-export const StepperControl = ({handleClick, currentStep, steps, formValid, save }) => {
+export const StepperControl = ({ handleClick, currentStep, steps, formValid, submitted }) => {
   return (
-    <Container>
-      <Row>
-        <Col xs={6}>
-          <Button style={{}} variant="outline-primary" onClick={() => {handleClick("Atras")}} disabled={currentStep === 1 ? true : false}>Atras</Button>
+    <Container className="mt-4">
+      <Row className="align-items-center">
+        <Col xs={6} className="text-start">
+          {/* CONDICIÓN: Solo mostramos 'Atras' si:
+              1. NO estamos en el paso 1
+              2. NO se ha enviado el formulario todavía (submitted)
+          */}
+          {(currentStep > 1 && !submitted) && (
+            <Button 
+              variant="outline-primary" 
+              onClick={() => handleClick("Atras")} 
+              style={{ borderRadius: '10px', padding: '8px 25px' }}
+            >
+              Atras
+            </Button>
+          )}
         </Col>
-        <Col xs={6}>
-          {currentStep !== steps.length ? (<Button  variant="outline-success" disabled={!formValid} onClick={() => {
-            if (currentStep === steps.length) {
-              save(); // Llama a la función save si el usuario está en el último paso
-            } else {
-              handleClick("Siguiente");
-            }
-          }}>
-            {currentStep !== steps.length && "Siguiente"}
-          </Button>): ("")}
+        
+        <Col xs={6} className="text-end">
+          {/* CONDICIÓN: Solo mostramos 'Siguiente' si:
+              1. No es el último paso
+              2. No se ha enviado el formulario
+          */}
+          {(currentStep !== steps.length && !submitted) && (
+            <Button  
+              variant="outline-success" 
+              disabled={!formValid} 
+              onClick={() => handleClick("Siguiente")}
+              style={{ borderRadius: '10px', padding: '8px 25px' }}
+            >
+              Siguiente
+            </Button>
+          )}
         </Col>
       </Row>
     </Container>

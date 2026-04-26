@@ -31,6 +31,9 @@ function App() {
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [position, setPosition] = useState(null);
+  const currentUser = localStorage.getItem("username") || "Anónimo";
+  // Nuevo estado para saber si el árbol ya se guardó
+  const [isFinalized, setIsFinalized] = useState(false);
 
   // --- LÓGICA DE AUTENTICACIÓN ---
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
@@ -39,17 +42,33 @@ function App() {
     setIsAuthenticated(true);
   };
 
-  const handleLogout = () => {
-    AuthService.logout();
-    setIsAuthenticated(false);
-    setCurrentStep(1); // Reiniciamos el stepper al salir para mayor seguridad
+  // --- FUNCIÓN DE LIMPIEZA TOTAL (RESET) ---
+  const handleReset = () => {
+    // 1. Limpiamos estados
+    setSelectPosition(null);
+    setCheckbox(null);
+    setfotoHoja(null);
+    setFotoPerfil(null);
+    setPosition(null);
+    setIsFinalized(false);
+    setFormValid(false);
+    setCurrentStep(1); // Volvemos al inicio
+
+    // 2. Limpiamos localStorage de fotos para que no aparezcan imágenes viejas
+    localStorage.removeItem("selectedImageProfile");
+    localStorage.removeItem("selectedImageLeaf"); 
   };
 
-  // Si no está autenticado, interceptamos el render y mostramos solo el Login
+  const handleLogout = () => {
+    AuthService.logout();
+    localStorage.removeItem("userName");
+    setIsAuthenticated(false);
+    handleReset(); // Al salir limpiamos todo por seguridad
+  };
+
   if (!isAuthenticated) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
-  // -------------------------------
 
   const steps = [
     "Dirección",
@@ -107,6 +126,9 @@ function App() {
             position={position}
             handleFormValidityChange={handleFormValidityChange}
             formValid={formValid}
+            createdBy={localStorage.getItem("username") || "Sin registro"}
+            onSuccess={() => setIsFinalized(true)} // Avisa que ya se guardó
+            onReset={handleReset} // Pasa la función de limpieza al botón del modal
           />
         );
       default:
@@ -116,15 +138,11 @@ function App() {
 
   const handleClick = (direction) => {
     let newStep = currentStep;
-
-    // Verificar si el usuario intenta avanzar o retroceder
     if (direction === "Siguiente" && formValid !== false) {
       newStep++;
     } else {
       newStep--;
     }
-
-    // Asegurarse de que el nuevo paso esté dentro del rango y no intente pasar del último
     if (newStep > 0 && newStep <= steps.length) {
       setCurrentStep(newStep);
     }
@@ -136,7 +154,6 @@ function App() {
 
   return (
     <Container>
-      {/* Botón de cerrar sesión en la esquina superior derecha */}
       <div className="d-flex justify-content-end mt-3 mb-2">
         <Button variant="outline-danger" size="sm" onClick={handleLogout}>
           Cerrar Sesión
@@ -174,12 +191,12 @@ function App() {
           </div>
 
           <div>
-            {/* El StepperControl sigue manejando los botones Atrás/Siguiente */}
             <StepperControl
               handleClick={handleClick}
               currentStep={currentStep}
               steps={steps}
               formValid={formValid}
+              submitted={isFinalized} // Pasa el estado de éxito para ocultar botones
             />
           </div>
         </Col>

@@ -1,4 +1,4 @@
-import { Button, Col, Container, Form, Row, Image } from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Image, Spinner } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 const leafExample = "./LeafExample.jpg";
 const NOMINATIM_BASE_URL = "https://arbin-ia.divisioncode.net.ar/predict_image";
@@ -6,195 +6,216 @@ const NOMINATIM_BASE_URL_PLANT_ID = "https://plant.id/api/v3/identification";
 
 import "./style/gallery.css";
 
-
-
 export const LeafPhotoPlantId = (props) => {
-  const [selectedImage, setSelectedImage] = useState(null); // Vista previa de la imagen
+  const [selectedImage, setSelectedImage] = useState(null); 
   const [listPlace, setListPlace] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showImage, setShowImage] = useState(null);
-  const [selectedCheckbox, setSelectedCheckbox] = useState(null);
   const { setCheckbox, handleFormValidityChange, setfotoHoja, Checkbox } = props;
   const API_KEY = import.meta.env.VITE_KEY_PLANT_ID
 
   const validatePhoto = () => {
-    const isValid = Checkbox !== null; // Validación básica: asegúrate de que el campo no esté vacío
-    handleFormValidityChange(isValid); // Llama a la función que maneja la validez del formulario
+    const isValid = Checkbox !== null; 
+    handleFormValidityChange(isValid); 
   };
+  
   useEffect(() => {
     validatePhoto();
   }, [Checkbox]);
-  
-
 
   const handleInputFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedImage(file);
 
     if (file) {
-      const reader = new FileReader(); // Crear un lector de archivos
+      const reader = new FileReader(); 
       reader.onloadend = () => {
-        // Cuando la lectura del archivo se complete, actualizar el estado de la imagen con la URL de la imagen
-        setShowImage(reader.result); // Mostrar la vista previa de la imagen
-        setfotoHoja(reader.result); // Asignar la imagen al estado fotoHoja
+        setShowImage(reader.result); 
+        setfotoHoja(reader.result); 
       };
-      reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+      reader.readAsDataURL(file); 
     }
   };
 
-  const handleSearchPlantId = async (e) => {
+const handleSearchPlantId = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      var raw = JSON.stringify({
-        images: [showImage],
-        "latitude": 49.207,
-        "longitude": 16.608,
-        "similar_images": true
-      })
-      const formData = new FormData();
-      formData.append("file", selectedImage);
-      var myHeaders = new Headers();
-      myHeaders.append("Api-Key", API_KEY);
-      myHeaders.append("Content-Type", "application/multipart/form-data");
+      const base64Image = showImage.split(',')[1] || showImage;
 
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow',
+      // PASO 1: Identificación básica (La que SI funciona)
+      const bodyIdent = {
+        images: [base64Image],
+        similar_images: true
       };
-      const response = await fetch(
-        `${NOMINATIM_BASE_URL_PLANT_ID}`,
-        requestOptions
-      );
-      if (!response.ok) {
-        throw new Error("Failed to upload image");
-      }
 
-      const result = await response.json();
+      const respIdent = await fetch(NOMINATIM_BASE_URL_PLANT_ID, {
+        method: 'POST',
+        headers: { 'Api-Key': API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyIdent)
+      });
 
-      if (result.result && result.result.classification && result.result.classification.suggestions.length > 0) {
-        // Verificar si hay sugerencias disponibles antes de acceder a ellas
-        const name = result.result.classification.suggestions[0].name;
-        const id = result.result.classification.suggestions[0].id;
-        const photo =  result.result.classification.suggestions[0].similar_images[0].url;
-        setListPlace([id,name,photo]);
-        // console.log(name); // Imprime el nombre del lugar
-        // console.log(listPlace);
-        setCheckbox(prevCheckboxValue => {
-          // Si prevCheckboxValue no está inicializado, inicialízalo como un array vacío
-          if (!Array.isArray(prevCheckboxValue)) {
-            prevCheckboxValue = [];
-          }
-          // Concatenar los nuevos valores
-          return prevCheckboxValue.concat([id, name]);
-        });
-      
-        validatePhoto()
+      if (!respIdent.ok) throw new Error("Fallo en la identificación básica");
+      const resultIdent = await respIdent.json();
+
+      const suggestions = resultIdent.result?.classification?.suggestions || resultIdent.classification?.suggestions;
+
+      if (suggestions && suggestions.length > 0) {
+        const suggestion = suggestions[0];
+        const sciName = suggestion.name;
+        const access_token = resultIdent.access_token; // <--- ESTA ES LA CLAVE
+
+        let commonName = sciName;
+
+        // PASO 2: Pedir los nombres comunes usando el access_token
+        // Esto es lo que hace la página web oficial por detrás
+        if (access_token) {
+            try {
+                const respDetails = await fetch(`https://plant.id/api/v3/identification/${access_token}?details=common_names&language=es`, {
+                    method: 'GET',
+                    headers: { 'Api-Key': API_KEY }
+                });
+                const resultDetails = await respDetails.json();
+                const detailedSuggestion = resultDetails.result?.classification?.suggestions?.[0];
+                const cNames = detailedSuggestion?.details?.common_names;
+                if (cNames && cNames.length > 0) {
+                    commonName = cNames[0];
+                }
+            } catch (errDet) {
+                console.log("No se pudieron obtener nombres comunes, usando científico.");
+            }
+        }
+
+        commonName = commonName.charAt(0).toUpperCase() + commonName.slice(1);
+
+        const id = suggestion.id || "0";
+        const photo = suggestion.similar_images?.[0]?.url || "";
+
+        setListPlace([id, commonName, photo]);
+        setCheckbox([id, commonName, sciName]);
+        validatePhoto();
       }
     } catch (error) {
-      console.log("Error:", error.message);
-      console.log("La imagen no se envió correctamente a la API");
+      console.error("Error:", error);
+      alert("Error en la identificación: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
-  // console.log(Checkbox);
+  
   return (
-    <div style={{ alignItems: "center", textAlign: "center" }}>
-      <h2 className="mb-3">Sacar foto de la hoja</h2>
-      <Row>
-        <Form>
-          <Row>
-            <Col md={{ offset: 4, span: 2 }}>
-              <div >
-                <img
-                  className="h-16 w-16 object-cover rounded-full"
-                  src={leafExample}
-                  alt="Current profile photo"
-                />
-              </div>
-            </Col>
-            <Col>
-              <label className="block">
-                <input
-                  type="file"
-                  name="UploadFile"
-                  onChange={handleInputFileChange}
-                  accept="image/*"
-                  className="block w-full text-sm text-slate-500
-       file:py-2 
-      file:rounded-full file:border-0
-      file:text-sm file:font-semibold
-      file:bg-violet-50 file:text-violet-700
-      hover:file:bg-violet-100 m-2"
-                  // style={{ width: 100, height: "20 hv" }}
-                />
-              </label>
-            </Col>
-          </Row>
-          <br />
-          <div>
-            <Col md={{ offset: 5, span: 2 }}>
-              <img
-                style={{
-                  maxHeight: "50vh",
-                }}
-                src={showImage}
-              />{" "}
-            </Col>
-            {/* Mostrar la vista previa de la foto */}
-          </div>{" "}
-          <br />
-          <div>
+    <Container className="text-center mt-3">
+      <h3 className="mb-4 text-success fw-bold">Identificar especie</h3>
+
+      {/* 1. ZONA DE SUBIDA DE FOTO */}
+      <Row className="justify-content-center mb-4">
+        <Col xs={11} md={8} lg={6}>
+          {/* Input oculto - El accept="image/*" asegura que en Android abra cámara y galería */}
+          <input
+            type="file"
+            id="hojaInput"
+            name="UploadFile"
+            accept="image/*"
+            onChange={handleInputFileChange}
+            style={{ display: "none" }}
+          />
+
+          {/* Botón visual gigante conectado al input */}
+          <label
+            htmlFor="hojaInput"
+            className="d-flex flex-column align-items-center justify-content-center p-4 w-100 shadow-sm"
+            style={{
+              border: "2px dashed #198754",
+              borderRadius: "15px",
+              cursor: "pointer",
+              backgroundColor: showImage ? "#e8f5e9" : "#f8f9fa",
+              transition: "all 0.3s ease"
+            }}
+          >
+            <span style={{ fontSize: "3.5rem", marginBottom: "10px" }}>📸</span>
+            <span style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#198754" }}>
+              {showImage ? "Cambiar la foto de la hoja" : "Tomar foto o abrir galería"}
+            </span>
+            <small className="text-muted mt-2 px-3">
+              Intenta que la hoja o flor se vea clara y centrada
+            </small>
+          </label>
+        </Col>
+      </Row>
+
+      {/* 2. VISTA PREVIA Y BOTÓN DE BÚSQUEDA (Solo aparecen si hay foto) */}
+      {showImage && (
+        <Row className="justify-content-center mb-4 mt-2">
+          <Col xs={11} md={8} lg={6}>
+            <Image
+              src={showImage}
+              alt="Vista previa"
+              style={{
+                width: "180px",
+                height: "180px",
+                objectFit: "cover",
+                borderRadius: "20px",
+                border: "4px solid #198754",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.15)"
+              }}
+              className="mb-4"
+            />
+            <br />
+            
             <Button
+              size="lg"
               onClick={handleSearchPlantId}
               variant="outline-success"
-              disabled={!selectedImage || isLoading || !listPlace} // Deshabilita el botón mientras se está cargando
+              className="w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center"
+              disabled={isLoading}
+              style={{ borderRadius: "10px", padding: "12px" }}
             >
               {isLoading ? (
-                <svg
-                  className="animate-spin h-5 w-5 mr-3 text-green"
-                  xmlns="https://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A8.004 8.004 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647zM12 20c4.418 0 8-3.582 8-8h-4c0 2.168-.837 4.154-2.191 5.657l-3.384-3.384A5.967 5.967 0 0012 14v6zm6.758-6.758l-3.38 3.382A5.969 5.969 0 0014 18h6c0-3.038-1.129-5.825-2.242-7.938z"
-                  ></path>
-                </svg>
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Analizando especie...
+                </>
               ) : (
-                "Buscar"
+                "🔍 Identificar árbol."
               )}
             </Button>
-          </div>
-        </Form>
-        <Container>
-          <Row>
-            <Col xs={{span:10, offset:1}} md={{span:6, offset:3}}>
-            {Checkbox !== null ? <h1 className="mt-3">¡Árbol encontrado!</h1> : ""} <br />
-          
-            <h2 style={{backgroundColor:"green", color:"white", fontSize:"2em"}}>{listPlace[1]}</h2>
-<br />
-          
-          <Image src={listPlace[2]} />
-            </Col>
-          </Row>
-          
-        </Container>
-      </Row>
-    </div>
+          </Col>
+        </Row>
+      )}
+
+      {/* 3. RESULTADO DE LA BÚSQUEDA */}
+      {listPlace.length > 0 && Checkbox !== null && (
+        <Row className="justify-content-center mt-4 mb-4">
+          <Col xs={11} md={8} lg={6}>
+            <div 
+              className="p-4 shadow" 
+              style={{ 
+                backgroundColor: "#198754", 
+                borderRadius: "20px", 
+                color: "white" 
+              }}
+            >
+              <h5 className="mb-2" style={{ opacity: 0.9 }}>¡Árbol identificado!</h5>
+              <h2 className="fw-bold my-3">{listPlace[1]}</h2>
+              {listPlace[2] && (
+                <Image
+                  src={listPlace[2]}
+                  alt={listPlace[1]}
+                  fluid
+                  style={{ 
+                    borderRadius: "15px", 
+                    maxHeight: "250px", 
+                    width: "100%", 
+                    objectFit: "cover" 
+                  }}
+                  className="mt-2 shadow-sm"
+                />
+              )}
+            </div>
+          </Col>
+        </Row>
+      )}
+    </Container>
   );
 };

@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import CensusTreesServices from "../../Services/CensusTreeService";
-import { Button, Form, Image, Modal, Row, Col } from "react-bootstrap";
+import {
+  Button,
+  Form,
+  Image,
+  Modal,
+  Row,
+  Col,
+  Container,
+  Spinner,
+} from "react-bootstrap";
 
 export const Finish = (props) => {
   const {
@@ -11,20 +20,23 @@ export const Finish = (props) => {
     position,
     handleFormValidityChange,
     formValid,
+    onSuccess,
+    onReset,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const street = selectPosition?.address?.road || "";
   const houeseNumber = selectPosition?.address?.house_number || "";
   const address = `${street} ${houeseNumber}`.trim();
-  // const neighbourhood = selectPosition?.address?.neighbourhood || "";
-  const neighbourhood = 
-    selectPosition?.address?.neighbourhood || 
-    selectPosition?.address?.suburb || 
-    selectPosition?.address?.city_district || 
+
+  const neighbourhood =
+    selectPosition?.address?.neighbourhood ||
+    selectPosition?.address?.suburb ||
+    selectPosition?.address?.city_district ||
     selectPosition?.address?.quarter ||
-    selectPosition?.address?.residential || 
+    selectPosition?.address?.residential ||
     "";
+
   const lat = selectPosition?.lat;
   const lng = selectPosition?.lon;
 
@@ -34,8 +46,9 @@ export const Finish = (props) => {
   const latlng = `${lng}, ${lat}`;
   const latlng2 = `${lng2}, ${lat2}`;
 
-  // Aseguramos que Checkbox exista antes de pedir la posición 1
-  const treeName = Checkbox ? Checkbox[1] : "";
+  // Capturamos los nombres desde el Checkbox
+  const treeCommonName = Checkbox ? Checkbox[1] : "";
+  const treeScientificName = Checkbox ? Checkbox[2] : "";
 
   const [imagesConverter, setImagesConverter] = useState({});
 
@@ -53,29 +66,39 @@ export const Finish = (props) => {
       return new File([u8arr], filename, { type: mime });
     };
 
-    const leafImgFile = fotoHoja ? dataURLtoFile(fotoHoja, "leafImage.jpg") : null;
-    const profileImgFile = fotoPerfil ? dataURLtoFile(fotoPerfil, "profileImage.jpg") : null;
-    
+    const leafImgFile = fotoHoja
+      ? dataURLtoFile(fotoHoja, "leafImage.jpg")
+      : null;
+    const profileImgFile = fotoPerfil
+      ? dataURLtoFile(fotoPerfil, "profileImage.jpg")
+      : null;
+
     setImagesConverter({
       leafImg: leafImgFile,
       profileImg: profileImgFile,
     });
   }, [fotoHoja, fotoPerfil]);
 
+  // AJUSTE CLAVE: tree es el científico, commonName es el común
   const initialFormCensusTree = {
-    tree: treeName,
+    tree: treeScientificName, // Nombre científico -> Columna histórica
+    commonName: treeCommonName, // Nombre común -> Columna nueva
     address: address,
     neightboardhood: neighbourhood,
     leafImg: null,
     profileImg: null,
     coordinates: lat2 === undefined && lng2 === undefined ? latlng : latlng2,
+    createdBy: props.createdBy, // Aquí viaja el "Test" de tu captura
   };
 
-  const [createCensusTree, setCreateCensusTree] = useState(initialFormCensusTree);
+  const [createCensusTree, setCreateCensusTree] = useState(
+    initialFormCensusTree,
+  );
   const [submitted, setSubmitted] = useState(false);
   const [show, setShow] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleClose = () => setShow(false); //Modal de confirmación
+  const handleClose = () => setShow(false);
 
   useEffect(() => {
     setCreateCensusTree((prev) => ({
@@ -105,12 +128,36 @@ export const Finish = (props) => {
   const save = (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null); // Limpiamos errores de intentos previos
+
+    // Enviamos el FormData que ya contiene 'tree' (científico) y 'commonName' (común)
     CensusTreesServices.createCensusTrees(createFormData(createCensusTree))
       .then(() => {
-        setSubmitted(true);
-        setShow(true); // Corregido: antes decía handleShow(true)
+        setSubmitted(true); // Muestra el mensaje de éxito local
+        setShow(true); // Abre el modal de confirmación
+
+        // AVISO AL PADRE: Esto hace que los botones 'Atras' y 'Siguiente'
+        // desaparezcan en App.js para evitar líos de navegación.
+        if (props.onSuccess) props.onSuccess();
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.error("Error al guardar en MongoDB:", err);
+        const errorMsg =
+          err.response?.data?.message ||
+          err.message ||
+          "Error de conexión con el servidor de Lanús Verde";
+        setErrorMessage(`Error al enviar: ${errorMsg}`);
+      })
+      .finally(() => {
+        setIsLoading(false); // Apagamos el spinner del botón
+      })
+      .catch((err) => {
+        const errorMsg =
+          err.response?.data?.message ||
+          err.message ||
+          "Error desconocido de conexión";
+        setErrorMessage(`Error al enviar: ${errorMsg}`);
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -133,111 +180,154 @@ export const Finish = (props) => {
   }, [createCensusTree]);
 
   return (
-    <div>
+    <Container className="mt-2 mb-5">
       {submitted ? (
-        <div className="modal show" style={{ display: "block", position: "initial" }}>
-          <Modal.Dialog show={show} onHide={handleClose}>
-            <Modal.Body>Árbol registrado correctamente</Modal.Body>
-            <Modal.Footer style={{ justifyContent:"center" }}>
-              <Button variant="info" href="/" size="sm">
+        <div
+          className="modal show"
+          style={{ display: "block", position: "initial" }}
+        >
+          <Modal.Dialog show={show} onHide={handleClose} centered>
+            <Modal.Body className="text-center p-4">
+              <h4 className="text-success fw-bold mb-3">¡Excelente!</h4>
+              <p>Árbol registrado correctamente en el sistema Arbin.</p>
+            </Modal.Body>
+            <Modal.Footer style={{ justifyContent: "center" }}>
+              <Button variant="success" href="/" className="fw-bold px-4">
                 Relevar otro árbol
               </Button>
-              {/* <Button variant="success" href="/" size="sm">
-                Volver al home
-              </Button> */}
             </Modal.Footer>
           </Modal.Dialog>
         </div>
       ) : (
-        <Row>
-          <Col xs={{ span: 10, offset: 1 }} md={{ span: 6, offset: 3 }}>
-            <form encType="multipart/form-data">
-              <h3>Dirección (si no es correcta, modifíquela):</h3>
-              <input
-                defaultValue={address}
-                name="address"
-                onChange={handleInputChange}
-                type="text"
-                style={{ textAlign: "center", margin: 1 }}
-              />
-              <h3>Coordenadas:</h3>
-              <input
-                defaultValue={
-                  lat2 === undefined && lng2 === undefined ? latlng : latlng2
-                }
-                onChange={handleInputChange}
-                name="coordinates"
-                type="text"
-                style={{ textAlign: "center", margin: 1 }}
-                disabled
-              />
-              <h3>Barrio (si no es correcta, modifíquelo):</h3>
-              <input
-                type="text"
-                defaultValue={neighbourhood}
-                onChange={handleInputChange}
-                style={{ textAlign: "center", margin: 1 }}
-                name="neightboardhood" 
-              />
-              <h3>Árbol censado:</h3>
-              <p style={{ textAlign: "center", fontSize: "1.2rem", fontWeight: "bold" }}>{treeName}</p>
-              
-              <h3>Foto de la hoja:</h3>
-              {fotoHoja && (
-                <Image
-                  src={fotoHoja}
-                  alt="Foto de la hoja"
-                  style={{ textAlign: "center", margin: 1, maxWidth: "100%" }}
-                />
-              )}
-              <h3>Foto del perfil:</h3>
-              {fotoPerfil && (
-                <Image
-                  src={fotoPerfil}
-                  alt="Foto de perfil"
-                  style={{ textAlign: "center", margin: 1, maxWidth: "100%" }}
-                />
-              )}
+        <Row className="justify-content-center">
+          <Col xs={11} md={8} lg={6}>
+            <h3 className="text-center text-success fw-bold mb-4">
+              Resumen del Censo
+            </h3>
 
-              <br />
-              <br />
-              
-              <Button
-                variant="outline-success"
-                type="submit"
-                onClick={save}
-                disabled={!formValid || isLoading}
+            <Form encType="multipart/form-data">
+              {/* VISTA PREVIA DEL ÁRBOL */}
+              <div
+                className="p-3 shadow-sm mb-4 text-center"
+                style={{
+                  backgroundColor: "#198754",
+                  borderRadius: "15px",
+                  color: "white",
+                }}
               >
-                {isLoading ? (
-                  <svg
-                    className="animate-spin h-5 w-5 mr-3 text-green"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    style={{ display: "inline-block" }}
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A8.004 8.004 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647zM12 20c4.418 0 8-3.582 8-8h-4c0 2.168-.837 4.154-2.191 5.657l-3.384-3.384A5.967 5.967 0 0012 14v6zm6.758-6.758l-3.38 3.382A5.969 5.969 0 0014 18h6c0-3.038-1.129-5.825-2.242-7.938z"
-                    ></path>
-                  </svg>
-                ) : (
-                  "Enviar formulario"
-                )}
-              </Button>
-            </form>
+                <p
+                  className="mb-1"
+                  style={{ fontSize: "0.9rem", opacity: 0.8 }}
+                >
+                  Especie identificada:
+                </p>
+                <h4 className="fw-bold mb-0">{treeCommonName}</h4>
+                <p
+                  className="mb-0 fst-italic"
+                  style={{ opacity: 0.8, fontSize: "0.9rem" }}
+                >
+                  {treeScientificName}
+                </p>
+              </div>
+
+              {/* FOTOS */}
+              <Row className="text-center mb-4 g-2">
+                <Col xs={6}>
+                  <p className="text-success fw-bold mb-1 small">Hoja / Flor</p>
+                  {fotoHoja && (
+                    <Image
+                      src={fotoHoja}
+                      alt="Hoja"
+                      className="shadow-sm border"
+                      style={{
+                        height: "120px",
+                        width: "100%",
+                        objectFit: "cover",
+                        borderRadius: "12px",
+                      }}
+                    />
+                  )}
+                </Col>
+                <Col xs={6}>
+                  <p className="text-success fw-bold mb-1 small">
+                    Árbol completo
+                  </p>
+                  {fotoPerfil && (
+                    <Image
+                      src={fotoPerfil}
+                      alt="Perfil"
+                      className="shadow-sm border"
+                      style={{
+                        height: "120px",
+                        width: "100%",
+                        objectFit: "cover",
+                        borderRadius: "12px",
+                      }}
+                    />
+                  )}
+                </Col>
+              </Row>
+
+              {/* CAMPOS EDITABLES */}
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold text-muted small mb-1">
+                  Dirección (Editable)
+                </Form.Label>
+                <Form.Control
+                  defaultValue={address}
+                  name="address"
+                  onChange={handleInputChange}
+                  type="text"
+                  className="text-center"
+                  style={{ borderRadius: "10px" }}
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold text-muted small mb-1">
+                  Barrio (Editable)
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  defaultValue={neighbourhood}
+                  onChange={handleInputChange}
+                  name="neightboardhood"
+                  className="text-center"
+                  style={{ borderRadius: "10px" }}
+                />
+              </Form.Group>
+
+              {/* ERROR ALERT */}
+              {errorMessage && (
+                <div className="alert alert-danger text-center py-2 mb-3 small fw-bold">
+                  {errorMessage}
+                </div>
+              )}
+              {!submitted && (
+                <Button
+                  variant="outline-success"
+                  size="lg"
+                  type="submit"
+                  onClick={save}
+                  disabled={!formValid || isLoading}
+                  className="w-100 fw-bold shadow-sm mt-2 mb-4 d-flex justify-content-center align-items-center"
+
+                style={{ borderRadius: "12px", padding: "14px" }} 
+                >
+                  {isLoading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      <span className="ms-2">Guardando datos...</span>
+                    </>
+                  ) : (
+                    "Confirmar y Guardar"
+                  )}
+                </Button>
+              )}
+            </Form>
           </Col>
         </Row>
       )}
-    </div>
+    </Container>
   );
 };
