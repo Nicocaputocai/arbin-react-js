@@ -117,6 +117,7 @@ const handleSearchPlantId = async (e) => {
             id="hojaInput"
             name="UploadFile"
             accept="image/*"
+            capture="environment"
             onChange={handleInputFileChange}
             style={{ display: "none" }}
           />

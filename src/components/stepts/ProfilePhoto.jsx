@@ -46,6 +46,7 @@ export const ProfilePhoto = (props) => {
             id="perfilInput"
             name="file"
             accept="image/*"
+            capture="environment"
             onChange={handleInputFileChange}
             style={{ display: "none" }}
           />
