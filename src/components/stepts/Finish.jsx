@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CensusTreesServices from "../../Services/CensusTreeService";
 import {
+  Badge,
   Button,
   Form,
   Image,
@@ -18,6 +19,10 @@ export const Finish = (props) => {
     fotoHoja,
     fotoPerfil,
     position,
+    treeDetails,
+    needsReview,
+    observations,
+    startTime,
     handleFormValidityChange,
     formValid,
     onSuccess,
@@ -25,11 +30,12 @@ export const Finish = (props) => {
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
-  const street = selectPosition?.address?.road || "";
-  const houeseNumber = selectPosition?.address?.house_number || "";
-  const address = `${street} ${houeseNumber}`.trim();
 
-  const neighbourhood =
+  const street = selectPosition?.address?.road || "";
+  const houseNumber = selectPosition?.address?.house_number || "";
+  const defaultAddress = `${street} ${houseNumber}`.trim();
+
+  const defaultNeighborhood =
     selectPosition?.address?.neighbourhood ||
     selectPosition?.address?.suburb ||
     selectPosition?.address?.city_district ||
@@ -37,20 +43,23 @@ export const Finish = (props) => {
     selectPosition?.address?.residential ||
     "";
 
-  const lat = selectPosition?.lat;
-  const lng = selectPosition?.lon;
+  // Coordenadas [lng, lat] priorizando el pin ajustado manualmente (position)
+  const finalLat =
+    position?.lat !== undefined ? position.lat : selectPosition?.lat;
+  const finalLng =
+    position?.lng !== undefined ? position.lng : selectPosition?.lon;
+  const formattedCoordinates =
+    finalLng !== undefined && finalLat !== undefined
+      ? `${finalLng}, ${finalLat}`
+      : "";
 
-  const lat2 = position?.lat;
-  const lng2 = position?.lng;
-
-  const latlng = `${lng}, ${lat}`;
-  const latlng2 = `${lng2}, ${lat2}`;
-
-  // Capturamos los nombres desde el Checkbox
   const treeCommonName = Checkbox ? Checkbox[1] : "";
   const treeScientificName = Checkbox ? Checkbox[2] : "";
 
-  const [imagesConverter, setImagesConverter] = useState({});
+  const [imagesConverter, setImagesConverter] = useState({
+    leafImg: null,
+    profileImg: null,
+  });
 
   useEffect(() => {
     const dataURLtoFile = (dataUrl, filename) => {
@@ -66,118 +75,120 @@ export const Finish = (props) => {
       return new File([u8arr], filename, { type: mime });
     };
 
-    const leafImgFile = fotoHoja
-      ? dataURLtoFile(fotoHoja, "leafImage.jpg")
-      : null;
-    const profileImgFile = fotoPerfil
-      ? dataURLtoFile(fotoPerfil, "profileImage.jpg")
-      : null;
-
     setImagesConverter({
-      leafImg: leafImgFile,
-      profileImg: profileImgFile,
+      leafImg: fotoHoja ? dataURLtoFile(fotoHoja, "leafImage.jpg") : null,
+      profileImg: fotoPerfil
+        ? dataURLtoFile(fotoPerfil, "profileImage.jpg")
+        : null,
     });
   }, [fotoHoja, fotoPerfil]);
 
-  // AJUSTE CLAVE: tree es el científico, commonName es el común
-  const initialFormCensusTree = {
-    tree: treeScientificName, // Nombre científico -> Columna histórica
-    commonName: treeCommonName, // Nombre común -> Columna nueva
-    address: address,
-    neightboardhood: neighbourhood,
+  const [formState, setFormState] = useState({
+    tree: treeScientificName,
+    commonName: treeCommonName,
+    origin: treeDetails?.origin || "",
+    relativeHeight: treeDetails?.relativeHeight || "",
+    visibleState: treeDetails?.visibleState || "",
+    address: defaultAddress,
+    neighborhood: defaultNeighborhood,
+    needsReview: Boolean(needsReview),
+    observations: observations || "",
     leafImg: null,
     profileImg: null,
-    coordinates: lat2 === undefined && lng2 === undefined ? latlng : latlng2,
-    createdBy: props.createdBy, // Aquí viaja el "Test" de tu captura
-  };
+    coordinates: formattedCoordinates,
+    createdBy: props.createdBy,
+  });
 
-  const [createCensusTree, setCreateCensusTree] = useState(
-    initialFormCensusTree,
-  );
   const [submitted, setSubmitted] = useState(false);
-  const [show, setShow] = useState(false);
+  const [savedSeconds, setSavedSeconds] = useState(0);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleClose = () => setShow(false);
-
   useEffect(() => {
-    setCreateCensusTree((prev) => ({
+    setFormState((prev) => ({
       ...prev,
-      address: address,
-      neightboardhood: neighbourhood,
+      tree: treeScientificName,
+      commonName: treeCommonName,
+      origin: treeDetails?.origin || "",
+      relativeHeight: treeDetails?.relativeHeight || "",
+      visibleState: treeDetails?.visibleState || "",
+      address: prev.address !== "" ? prev.address : defaultAddress,
+      neighborhood:
+        prev.neighborhood !== "" ? prev.neighborhood : defaultNeighborhood,
+      needsReview: Boolean(needsReview),
+      observations: observations || prev.observations,
       leafImg: imagesConverter.leafImg,
       profileImg: imagesConverter.profileImg,
+      coordinates: formattedCoordinates,
     }));
-  }, [imagesConverter, address, neighbourhood]);
-
-  const createFormData = (data) => {
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== null && data[key] !== undefined) {
-        formData.append(key, data[key]);
-      }
-    });
-    return formData;
-  };
+  }, [
+    imagesConverter,
+    defaultAddress,
+    defaultNeighborhood,
+    formattedCoordinates,
+    treeScientificName,
+    treeCommonName,
+    treeDetails,
+    needsReview,
+    observations,
+  ]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCreateCensusTree({ ...createCensusTree, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setFormState((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
+
+  useEffect(() => {
+    const isValid =
+      formState.tree !== "" &&
+      formState.origin !== "" &&
+      formState.relativeHeight !== "" &&
+      formState.visibleState !== "" &&
+      formState.address.trim() !== "" &&
+      formState.profileImg !== null &&
+      formState.coordinates !== "";
+
+    handleFormValidityChange(isValid);
+  }, [formState]);
 
   const save = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMessage(null); // Limpiamos errores de intentos previos
+    setErrorMessage(null);
 
-    // Enviamos el FormData que ya contiene 'tree' (científico) y 'commonName' (común)
-    CensusTreesServices.createCensusTrees(createFormData(createCensusTree))
+    const elapsedSeconds = startTime
+      ? Math.max(1, Math.round((Date.now() - startTime) / 1000))
+      : 0;
+
+    const formData = new FormData();
+    Object.keys(formState).forEach((key) => {
+      if (formState[key] !== null && formState[key] !== undefined) {
+        formData.append(key, formState[key]);
+      }
+    });
+    formData.append("loadTimeSeconds", elapsedSeconds);
+
+    CensusTreesServices.createCensusTrees(formData)
       .then(() => {
-        setSubmitted(true); // Muestra el mensaje de éxito local
-        setShow(true); // Abre el modal de confirmación
-
-        // AVISO AL PADRE: Esto hace que los botones 'Atras' y 'Siguiente'
-        // desaparezcan en App.js para evitar líos de navegación.
-        if (props.onSuccess) props.onSuccess();
+        setSavedSeconds(elapsedSeconds);
+        setSubmitted(true);
+        if (onSuccess) onSuccess();
       })
       .catch((err) => {
         console.error("Error al guardar en MongoDB:", err);
         const errorMsg =
+          err.response?.data?.error ||
           err.response?.data?.message ||
           err.message ||
-          "Error de conexión con el servidor de Lanús Verde";
-        setErrorMessage(`Error al enviar: ${errorMsg}`);
-      })
-      .finally(() => {
-        setIsLoading(false); // Apagamos el spinner del botón
-      })
-      .catch((err) => {
-        const errorMsg =
-          err.response?.data?.message ||
-          err.message ||
-          "Error desconocido de conexión";
+          "Error de conexión con el servidor";
         setErrorMessage(`Error al enviar: ${errorMsg}`);
       })
       .finally(() => {
         setIsLoading(false);
       });
   };
-
-  const validateStatus = () => {
-    const isValid =
-      createCensusTree.tree !== "" &&
-      createCensusTree.address !== "" &&
-      createCensusTree.neightboardhood !== "" &&
-      createCensusTree.leafImg !== null &&
-      createCensusTree.profileImg !== null &&
-      createCensusTree.coordinates !== "";
-
-    handleFormValidityChange(isValid);
-  };
-
-  useEffect(() => {
-    validateStatus();
-  }, [createCensusTree]);
 
   return (
     <Container className="mt-2 mb-5">
@@ -186,13 +197,22 @@ export const Finish = (props) => {
           className="modal show"
           style={{ display: "block", position: "initial" }}
         >
-          <Modal.Dialog show={show} onHide={handleClose} centered>
+          <Modal.Dialog centered>
             <Modal.Body className="text-center p-4">
-              <h4 className="text-success fw-bold mb-3">¡Excelente!</h4>
-              <p>Árbol registrado correctamente en el sistema Arbin.</p>
+              <h4 className="text-success fw-bold mb-2">¡Excelente!</h4>
+              <p className="mb-2">
+                Árbol registrado correctamente en el sistema Arbin.
+              </p>
+              <Badge bg="light" text="dark" className="border px-3 py-2">
+                ⏱️ Tiempo de relevamiento: {savedSeconds} segundos
+              </Badge>
             </Modal.Body>
             <Modal.Footer style={{ justifyContent: "center" }}>
-              <Button variant="success" href="/" className="fw-bold px-4">
+              <Button
+                variant="success"
+                onClick={onReset}
+                className="fw-bold px-4"
+              >
                 Relevar otro árbol
               </Button>
             </Modal.Footer>
@@ -200,15 +220,15 @@ export const Finish = (props) => {
         </div>
       ) : (
         <Row className="justify-content-center">
-          <Col xs={11} md={8} lg={6}>
-            <h3 className="text-center text-success fw-bold mb-4">
+          <Col xs={12} md={8} lg={6}>
+            <h3 className="text-center text-success fw-bold mb-3">
               Resumen del Censo
             </h3>
 
-            <Form encType="multipart/form-data">
-              {/* VISTA PREVIA DEL ÁRBOL */}
+            <Form encType="multipart/form-data" onSubmit={save}>
+              {/* VISTA PREVIA DE ESPECIE Y ATRIBUTOS */}
               <div
-                className="p-3 shadow-sm mb-4 text-center"
+                className="p-3 shadow-sm mb-3 text-center"
                 style={{
                   backgroundColor: "#198754",
                   borderRadius: "15px",
@@ -217,24 +237,35 @@ export const Finish = (props) => {
               >
                 <p
                   className="mb-1"
-                  style={{ fontSize: "0.9rem", opacity: 0.8 }}
+                  style={{ fontSize: "0.85rem", opacity: 0.85 }}
                 >
                   Especie identificada:
                 </p>
                 <h4 className="fw-bold mb-0">{treeCommonName}</h4>
                 <p
-                  className="mb-0 fst-italic"
-                  style={{ opacity: 0.8, fontSize: "0.9rem" }}
+                  className="mb-2 fst-italic"
+                  style={{ opacity: 0.85, fontSize: "0.9rem" }}
                 >
                   {treeScientificName}
                 </p>
+                <div className="d-flex justify-content-center gap-2 flex-wrap">
+                  <Badge bg="light" text="dark">
+                    {formState.origin}
+                  </Badge>
+                  <Badge bg="light" text="dark">
+                    {formState.relativeHeight}
+                  </Badge>
+                  <Badge bg="light" text="dark">
+                    Estado: {formState.visibleState}
+                  </Badge>
+                </div>
               </div>
 
               {/* FOTOS */}
-              <Row className="text-center mb-4 g-2">
+              <Row className="text-center mb-3 g-2">
                 <Col xs={6}>
                   <p className="text-success fw-bold mb-1 small">Hoja / Flor</p>
-                  {fotoHoja && (
+                  {fotoHoja ? (
                     <Image
                       src={fotoHoja}
                       alt="Hoja"
@@ -246,6 +277,13 @@ export const Finish = (props) => {
                         borderRadius: "12px",
                       }}
                     />
+                  ) : (
+                    <div
+                      className="d-flex align-items-center justify-content-center border bg-light text-muted small px-2"
+                      style={{ height: "120px", borderRadius: "12px" }}
+                    >
+                      Sin foto de hoja (carga manual)
+                    </div>
                   )}
                 </Col>
                 <Col xs={6}>
@@ -274,12 +312,13 @@ export const Finish = (props) => {
                   Dirección (Editable)
                 </Form.Label>
                 <Form.Control
-                  defaultValue={address}
+                  value={formState.address}
                   name="address"
                   onChange={handleInputChange}
                   type="text"
                   className="text-center"
                   style={{ borderRadius: "10px" }}
+                  required
                 />
               </Form.Group>
 
@@ -289,11 +328,40 @@ export const Finish = (props) => {
                 </Form.Label>
                 <Form.Control
                   type="text"
-                  defaultValue={neighbourhood}
+                  value={formState.neighborhood}
                   onChange={handleInputChange}
-                  name="neightboardhood"
+                  name="neighborhood"
                   className="text-center"
                   style={{ borderRadius: "10px" }}
+                />
+              </Form.Group>
+
+              {/* OBSERVACIONES */}
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold text-muted small mb-1">
+                  Observaciones (Opcional)
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  placeholder="Ej: Vereda levantada, ramas muy altas, cazuela vacía..."
+                  value={formState.observations}
+                  onChange={handleInputChange}
+                  name="observations"
+                  style={{ borderRadius: "10px" }}
+                />
+              </Form.Group>
+
+              {/* CHECKBOX REVISIÓN IA */}
+              <Form.Group className="mb-3 p-2 border rounded bg-light">
+                <Form.Check
+                  type="switch"
+                  id="needsReviewSwitch"
+                  name="needsReview"
+                  checked={formState.needsReview}
+                  onChange={handleInputChange}
+                  label="Marcar para revisión (especie dudosa o sin identificar)"
+                  className="small fw-semibold text-secondary"
                 />
               </Form.Group>
 
@@ -303,21 +371,20 @@ export const Finish = (props) => {
                   {errorMessage}
                 </div>
               )}
+
               {!submitted && (
                 <Button
-                  variant="outline-success"
+                  variant="success"
                   size="lg"
                   type="submit"
-                  onClick={save}
                   disabled={!formValid || isLoading}
                   className="w-100 fw-bold shadow-sm mt-2 mb-4 d-flex justify-content-center align-items-center"
-
-                style={{ borderRadius: "12px", padding: "14px" }} 
+                  style={{ borderRadius: "12px", padding: "14px" }}
                 >
                   {isLoading ? (
                     <>
                       <Spinner animation="border" size="sm" className="me-2" />
-                      <span className="ms-2">Guardando datos...</span>
+                      <span>Guardando datos...</span>
                     </>
                   ) : (
                     "Confirmar y Guardar"

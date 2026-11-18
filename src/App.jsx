@@ -11,6 +11,7 @@ import { ProfilePhoto } from "./components/stepts/ProfilePhoto";
 import { StrepperContext } from "./components/contexts/StepperContext";
 import { Finish } from "./components/stepts/Finish";
 import { LeafPhotoPlantId } from "./components/stepts/LeafPhotoPlantId";
+import { TreeCondition } from "./components/stepts/TreeCondition";
 
 // Componentes de Autenticación
 import { Login } from "./components/Login";
@@ -31,39 +32,62 @@ function App() {
   const [fotoHoja, setfotoHoja] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [position, setPosition] = useState(null);
-  const currentUser = localStorage.getItem("username") || "Anónimo";
-  // Nuevo estado para saber si el árbol ya se guardó
+
+  // Estados para Paso 3 (Duda sobre IA y observaciones)
+  const [needsReview, setNeedsReview] = useState(false);
+  const [observations, setObservations] = useState("");
+
+  // Estado para Paso 5 (Origen, Altura relativa y Estado visible)
+  const [treeDetails, setTreeDetails] = useState({
+    origin: "",
+    relativeHeight: "",
+    visibleState: "",
+  });
+
+  // Marca de tiempo inicial para calcular la duración total del relevamiento
+  const [startTime, setStartTime] = useState(() => Date.now());
+
+  // Estado para saber si el árbol ya se guardó
   const [isFinalized, setIsFinalized] = useState(false);
 
   // --- LÓGICA DE AUTENTICACIÓN ---
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("token")
+  );
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
+    setStartTime(Date.now());
   };
 
   // --- FUNCIÓN DE LIMPIEZA TOTAL (RESET) ---
   const handleReset = () => {
-    // 1. Limpiamos estados
     setSelectPosition(null);
     setCheckbox(null);
     setfotoHoja(null);
     setFotoPerfil(null);
     setPosition(null);
+    setNeedsReview(false);
+    setObservations("");
+    setTreeDetails({
+      origin: "",
+      relativeHeight: "",
+      visibleState: "",
+    });
     setIsFinalized(false);
     setFormValid(false);
-    setCurrentStep(1); // Volvemos al inicio
+    setCurrentStep(1);
+    setStartTime(Date.now()); // Reiniciamos el cronómetro para el próximo árbol
 
-    // 2. Limpiamos localStorage de fotos para que no aparezcan imágenes viejas
     localStorage.removeItem("selectedImageProfile");
-    localStorage.removeItem("selectedImageLeaf"); 
+    localStorage.removeItem("selectedImageLeaf");
   };
 
   const handleLogout = () => {
     AuthService.logout();
-    localStorage.removeItem("userName");
+    localStorage.removeItem("username");
     setIsAuthenticated(false);
-    handleReset(); // Al salir limpiamos todo por seguridad
+    handleReset();
   };
 
   if (!isAuthenticated) {
@@ -75,8 +99,13 @@ function App() {
     "Ubicación",
     "Foto de la hoja",
     "Foto del perfil",
+    "Altura y Estado",
     "Finalizar",
   ];
+
+  const handleFormValidityChange = (isValid) => {
+    setFormValid(isValid);
+  };
 
   const displayStep = (step) => {
     switch (step) {
@@ -85,6 +114,7 @@ function App() {
           <Address
             selectPosition={selectPosition}
             setSelectPosition={setSelectPosition}
+            setPosition={setPosition}
             handleFormValidityChange={handleFormValidityChange}
           />
         );
@@ -106,6 +136,10 @@ function App() {
             setCheckbox={setCheckbox}
             setfotoHoja={setfotoHoja}
             fotoHoja={fotoHoja}
+            needsReview={needsReview}
+            setNeedsReview={setNeedsReview}
+            observations={observations}
+            setObservations={setObservations}
           />
         );
       case 4:
@@ -116,7 +150,16 @@ function App() {
             setFotoPerfil={setFotoPerfil}
           />
         );
-      case 5:
+case 5:
+        return (
+          <TreeCondition
+            treeDetails={treeDetails}
+            setTreeDetails={setTreeDetails}
+            handleFormValidityChange={handleFormValidityChange}
+            Checkbox={Checkbox}
+          />
+        );
+      case 6:
         return (
           <Finish
             selectPosition={selectPosition}
@@ -124,11 +167,15 @@ function App() {
             fotoHoja={fotoHoja}
             fotoPerfil={fotoPerfil}
             position={position}
+            treeDetails={treeDetails}
+            needsReview={needsReview}
+            observations={observations}
+            startTime={startTime}
             handleFormValidityChange={handleFormValidityChange}
             formValid={formValid}
             createdBy={localStorage.getItem("username") || "Sin registro"}
-            onSuccess={() => setIsFinalized(true)} // Avisa que ya se guardó
-            onReset={handleReset} // Pasa la función de limpieza al botón del modal
+            onSuccess={() => setIsFinalized(true)}
+            onReset={handleReset}
           />
         );
       default:
@@ -146,10 +193,6 @@ function App() {
     if (newStep > 0 && newStep <= steps.length) {
       setCurrentStep(newStep);
     }
-  };
-
-  const handleFormValidityChange = (isValid) => {
-    setFormValid(isValid);
   };
 
   return (
@@ -196,7 +239,7 @@ function App() {
               currentStep={currentStep}
               steps={steps}
               formValid={formValid}
-              submitted={isFinalized} // Pasa el estado de éxito para ocultar botones
+              submitted={isFinalized}
             />
           </div>
         </Col>

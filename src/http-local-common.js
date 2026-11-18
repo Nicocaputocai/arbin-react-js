@@ -1,9 +1,25 @@
-import axios from 'axios';
+import axios from "axios";
 
-export default axios.create({
-    baseURL: "http://localhost:4000/api",
-    timeout:"30000ms",
-    headers: {
-        'Content-Type': 'application/multipart/form-data', // ajusta el tipo de contenido según sea necesario
-      },
-})
+const http = axios.create({
+  baseURL: "http://localhost:4000/api",
+  timeout: 30000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+http.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  // Si enviamos FormData (fotos en Finish.jsx), dejamos que el navegador ponga el Content-Type con su boundary
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
+  return config;
+});
+
+export default http;

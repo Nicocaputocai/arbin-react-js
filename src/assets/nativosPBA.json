@@ -1,0 +1,275 @@
+[
+    {
+      "scientificName": "Tessaria integrifolia",
+      "commonName": "Aliso de río",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Blepharocalyx salicifolius",
+      "commonName": "Anacahuita",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Erythrina crista-galli",
+      "commonName": "Ceibo, seibo",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Sapium haematospermun",
+      "commonName": "Curupí",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Nectandra angustifolia",
+      "commonName": "Laurel de río",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Pouteria salicifolia",
+      "commonName": "Mata ojos",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Terminalia australis",
+      "commonName": "Palo amarillo",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Salix humboldtiana",
+      "commonName": "Sauce criollo",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Citharexylum montevidense",
+      "commonName": "Tarumá",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Enterolobium contortisiliquum",
+      "commonName": "Timbó",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Lantana megapotamica",
+      "commonName": "Camará morado",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Sesbania punicea",
+      "commonName": "Ceibillo",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Pavonia hastata",
+      "commonName": "Malvavisco, malva rosa",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Pavonia sepium",
+      "commonName": "Malvavisco, botón de oro",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Delta e Islas del Paraná, Espinal"
+    },
+    {
+      "scientificName": "Neltuma alba",
+      "commonName": "Algarrobo blanco",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Neltuma flexuosa",
+      "commonName": "Algarrobo dulce",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Neltuma caldenia",
+      "commonName": "Caldén",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Geoffroea decorticans",
+      "commonName": "Chañar",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Scutia buxifolia",
+      "commonName": "Coronillo",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Schinus longifolius",
+      "commonName": "Molle",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Phytolacca dioica",
+      "commonName": "Ombú",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Sambucus australis",
+      "commonName": "Sauco",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Jodina rhombifolia",
+      "commonName": "Sombra de toro",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Celtis tala",
+      "commonName": "Tala",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Parkinsonia aculeata",
+      "commonName": "Cina-cina",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Vachellia caven",
+      "commonName": "Espinillo",
+      "native": true,
+      "type": "Árbol",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Erythrostemon gilliesii",
+      "commonName": "Barba de chivo",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Colletia spinosissima",
+      "commonName": "Barba de tigre",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Colletia paradoxa",
+      "commonName": "Curro",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Abutilon grandifolium",
+      "commonName": "Malvavisco",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Sphaeralcea bonariensis",
+      "commonName": "Malvavisco salmón",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Senegalia bonariensis",
+      "commonName": "Napinday",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Phytolacca tetramera",
+      "commonName": "Ombusillo",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Senna corymbosa",
+      "commonName": "Sen de campo",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal, Delta e Islas del Paraná"
+    },
+    {
+      "scientificName": "Lycium cestroides",
+      "commonName": "Talilla",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Larrea divaricata",
+      "commonName": "Jarilla hembra",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Espinal"
+    },
+    {
+      "scientificName": "Baccharis trimera",
+      "commonName": "Carqueja",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Pampa"
+    },
+    {
+      "scientificName": "Austroeupatorium inulifolium",
+      "commonName": "Mariposera",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Pampa"
+    },
+    {
+      "scientificName": "Condalia microphylla",
+      "commonName": "Piquillín",
+      "native": true,
+      "type": "Arbusto",
+      "ecoregion": "Pampa"
+    }
+  ]

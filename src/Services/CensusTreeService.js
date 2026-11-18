@@ -1,11 +1,9 @@
+import http from '../http-common';
 import httpLocal from '../http-local-common';
-import http from '../http-common'
-
-const service = http;
 
 const CensusTreesServices = {
-    getAllCensusTrees: () => service.get('/censusTrees'),
-    createCensusTrees: (data, options={headers:{'type':'multipart/form-data'}}) => service.post('/censusTrees/create', data, {...options})
-}
+  getAllCensusTrees: (params = {}) => httpLocal.get('/censusTrees', { params }),
+  createCensusTrees: (data) => httpLocal.post('/censusTrees/create', data),
+};
 
-export default CensusTreesServices
+export default CensusTreesServices;

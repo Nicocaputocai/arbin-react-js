@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import AuthService from "../Services/AuthService";
 
-const logo = "./arbin-high-resolution-logo-transparent.png"; // Usamos tu mismo logo
+const logo = "./arbin-high-resolution-logo-transparent.png";
 
 export const Login = ({ onLoginSuccess }) => {
   const [credentials, setCredentials] = useState({ user: "", password: "" });
@@ -32,11 +32,17 @@ export const Login = ({ onLoginSuccess }) => {
         credentials.user,
         credentials.password,
       );
-      // Guardamos el token
+
+      if (!response?.token) {
+        throw { message: "Respuesta inválida del servidor: falta el token" };
+      }
+
       localStorage.setItem("token", response.token);
-      // GUARDAMOS EL NOMBRE DE USUARIO
-      localStorage.setItem("username", credentials.user);
-      // Le avisamos a App.jsx que el login fue exitoso
+      localStorage.setItem(
+        "username",
+        response.user?.name || credentials.user
+      );
+
       onLoginSuccess();
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");

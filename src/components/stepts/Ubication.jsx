@@ -1,46 +1,59 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import React, { useEffect, useMemo, useRef } from "react";
+import { Circle, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "../../../node_modules/leaflet/dist/leaflet.css";
 import treeMarker from "../../assets/marker/Espacio_verde.svg";
 import { Col, Row } from "react-bootstrap";
+
 const API_MAP_KEY = import.meta.env.VITE_KEY_STADIA_MAP;
 
 const myIcon = new L.Icon({
   iconUrl: treeMarker,
   iconRetinaUrl: treeMarker,
-  popupAnchor: [-0, -0],
+  popupAnchor: [0, 0],
   iconSize: [40, 40],
   shadowSize: [68, 95],
   shadowAnchor: [22, 94],
   iconAnchor: [20, 40],
 });
 
-const positionCenter = [-34.7033363, -58.3953235];
+const defaultCenter = [-34.7033363, -58.3953235];
 
-function ResetCenterView(props) {
-  const { selectPosition } = props;
-
+function ResetCenterView({ centerCoords }) {
   const map = useMap();
 
   useEffect(() => {
-    if (selectPosition) {
-      map.setView(
-        L.latLng(selectPosition?.lat, selectPosition?.lon),
-        map.getZoom(),
-        {
-          animate: true,
-        },
-      );
+    if (centerCoords) {
+      map.setView(centerCoords, 18, { animate: true });
     }
-  }, [selectPosition]);
+  }, [centerCoords, map]);
 
   return null;
 }
 
 export const Ubication = (props) => {
   const { position, setPosition, selectPosition } = props;
-  const locationSelection = [selectPosition?.lat, selectPosition?.lon];
+
+  // Normalizamos coordenadas a [lat, lng] numérico
+  const baseCoords = useMemo(() => {
+    if (position?.lat && position?.lng) {
+      return [Number(position.lat), Number(position.lng)];
+    }
+    if (selectPosition?.lat && selectPosition?.lon) {
+      return [Number(selectPosition.lat), Number(selectPosition.lon)];
+    }
+    return defaultCenter;
+  }, [position, selectPosition]);
+
+  // Aseguramos que position quede inicializado incluso si el censista no arrastra el pin
+  useEffect(() => {
+    if (!position && selectPosition?.lat && selectPosition?.lon) {
+      setPosition({
+        lat: Number(selectPosition.lat),
+        lng: Number(selectPosition.lon),
+      });
+    }
+  }, [position, selectPosition, setPosition]);
 
   function DraggableMarker() {
     const markerRef = useRef(null);
@@ -50,18 +63,19 @@ export const Ubication = (props) => {
         dragend() {
           const marker = markerRef.current;
           if (marker != null) {
-            setPosition(marker.getLatLng());
+            const { lat, lng } = marker.getLatLng();
+            setPosition({ lat, lng });
           }
         },
       }),
-      [setPosition],
+      [setPosition]
     );
 
     return (
       <Marker
         draggable
         eventHandlers={eventHandlers}
-        position={position !== null ? position : selectPosition}
+        position={baseCoords}
         ref={markerRef}
         icon={myIcon}
       />
@@ -69,56 +83,53 @@ export const Ubication = (props) => {
   }
 
   return (
-    <Row>
-      <div className="map-container" style={{}}>
-        <h2 className="m-2">
-          Si la ubicación no es correcta, puede arrastrar el marcador a la
-          posición que corresponda
-        </h2>
-        <Col md={{ span: 10, offset: 1 }} xs={{ span: 10, offset: 1 }}>
-          <div>
-            {locationSelection === undefined ? (
-              <MapContainer
-                style={{ height: "50vh", width: "60vw" }}
-                center={positionCenter}
-                zoom={16}
-                scrollWheelZoom={true}
-                minZoom={3}
-                maxZoom={19}
-                maxBounds={[
-                  [-85.06, -180],
-                  [85.06, 180],
+    <Row className="justify-content-center">
+      <Col xs={12} md={10}>
+        <div className="text-center mb-3">
+          <h5 className="text-success fw-bold mb-1">Ajuste fino en el mapa</h5>
+          <p className="text-muted small mb-0">
+            Si el árbol está unos metros más allá sobre la vereda, arrastrá el
+            ícono hasta su ubicación exacta.
+          </p>
+        </div>
+
+        <div
+          className="shadow-sm border"
+          style={{ borderRadius: "12px", overflow: "hidden" }}
+        >
+          <MapContainer
+            style={{ height: "52vh", width: "100%" }}
+            center={baseCoords}
+            zoom={18}
+            scrollWheelZoom={true}
+            minZoom={5}
+            maxZoom={19}
+          >
+            <TileLayer
+              url={`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${API_MAP_KEY}`}
+            />
+
+            {selectPosition?.accuracy && (
+              <Circle
+                center={[
+                  Number(selectPosition.lat),
+                  Number(selectPosition.lon),
                 ]}
-              >
-                <TileLayer
-                  url={`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${API_MAP_KEY}`}
-                />
-                {locationSelection !== undefined && <DraggableMarker />}
-                <ResetCenterView selectPosition={selectPosition} />
-              </MapContainer>
-            ) : (
-              <MapContainer
-                style={{ height: "50vh", width: "60vw" }}
-                center={selectPosition}
-                zoom={15}
-                scrollWheelZoom={true}
-                minZoom={5}
-                maxZoom={19}
-                maxBounds={[
-                  [-85.06, -180],
-                  [85.06, 180],
-                ]}
-              >
-                <TileLayer
-  url={`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${API_MAP_KEY}`}
-/>
-                {locationSelection !== undefined && <DraggableMarker />}
-                <ResetCenterView selectPosition={selectPosition} />
-              </MapContainer>
+                radius={selectPosition.accuracy}
+                pathOptions={{
+                  color: "#198754",
+                  fillColor: "#198754",
+                  fillOpacity: 0.12,
+                  weight: 1,
+                }}
+              />
             )}
-          </div>
-        </Col>
-      </div>
+
+            <DraggableMarker />
+            <ResetCenterView centerCoords={baseCoords} />
+          </MapContainer>
+        </div>
+      </Col>
     </Row>
   );
 };
