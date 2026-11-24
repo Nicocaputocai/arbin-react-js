@@ -4,7 +4,7 @@ import httpLocal from '../http-local-common';
 const AuthService = {
   login: async (user, password) => {
     try {
-      const response = await httpLocal.post('/users/login', { user, password });
+      const response = await http.post('/users/login', { user, password });
       if (response.data?.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));

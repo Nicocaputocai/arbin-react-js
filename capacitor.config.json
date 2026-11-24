@@ -1,6 +1,6 @@
 {
-  "appId": "desarrolloi.org",
-  "appName": "arbin",
+  "appId": "com.lanus.arbin",
+  "appName": "Arbin Lanus",
   "webDir": "dist",
   "bundledWebRuntime": false
 }

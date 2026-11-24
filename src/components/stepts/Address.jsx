@@ -37,14 +37,20 @@ export const Address = (props) => {
   const [gpsError, setGpsError] = useState(null);
   const watchIdRef = useRef(null);
   const bestFixRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const isValid = selectPosition !== null;
     handleFormValidityChange(isValid);
   }, [selectPosition]);
 
-  // Limpiamos cualquier watcher activo si el usuario cambia de paso o de modo
+  // Limpiamos cualquier watcher y temporizador activo si el usuario cambia de paso o de modo
   const stopWatching = async () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     if (watchIdRef.current !== null) {
       try {
         if (Capacitor.isNativePlatform()) {
@@ -109,7 +115,8 @@ export const Address = (props) => {
         lat: String(lat),
         lon: String(lng),
         accuracy: Math.round(accuracy),
-        display_name: data?.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        display_name:
+          data?.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
         address: data?.address || {
           road: "Ubicación GPS",
           neighbourhood: "Lanús",
@@ -148,10 +155,16 @@ export const Address = (props) => {
     bestFixRef.current = null;
 
     try {
-      // 1. En Android/iOS nativo (APK), pedimos permisos explícitos primero
+      // 1. En Android/iOS nativo (APK), verificamos estado y pedimos permisos explícitos primero
       if (Capacitor.isNativePlatform()) {
-        const perm = await Geolocation.requestPermissions();
+        let perm = await Geolocation.checkPermissions();
         if (perm.location !== "granted") {
+          perm = await Geolocation.requestPermissions({
+            permissions: ["location", "coarseLocation"],
+          });
+        }
+
+        if (perm.location !== "granted" && perm.coarseLocation !== "granted") {
           setGpsError(
             "Permiso de ubicación denegado. Habilitá el GPS preciso en los ajustes de la app."
           );
@@ -169,9 +182,10 @@ export const Address = (props) => {
           let msg = "No se pudo obtener la ubicación GPS.";
           if (err.code === 1) {
             msg =
-              "Permiso denegado. En iPhone revisá Ajustes > Safari > Ubicación (Precisa).";
+              "Permiso denegado. Revisá los permisos de Ubicación (Precisa) en los ajustes del teléfono.";
           } else if (err.code === 2) {
-            msg = "Señal GPS no disponible. Probá alejarte de techos o edificios altos.";
+            msg =
+              "Señal GPS no disponible. Probá alejarte de techos o edificios altos.";
           } else if (err.code === 3) {
             msg = "Tiempo de espera agotado buscando satélites. Reintentá.";
           }
@@ -220,12 +234,17 @@ export const Address = (props) => {
         );
       }
 
-      // 3. Salvaguarda a los 8 segundos: si bajo árboles densos quedó en ~15-25m, toma la mejor lectura obtenida
-      setTimeout(async () => {
+      // 3. Salvaguarda a los 8 segundos: toma la mejor lectura obtenida o avisa si no hubo señal
+      timeoutRef.current = setTimeout(async () => {
         if (watchIdRef.current !== null && bestFixRef.current) {
           const { lat, lng, accuracy } = bestFixRef.current;
           await stopWatching();
           await resolveCoordinatesToPlace(lat, lng, accuracy);
+        } else if (watchIdRef.current !== null) {
+          await stopWatching();
+          setGpsError(
+            "No se recibió señal GPS. Verificá que la Ubicación del teléfono esté encendida y probá a cielo abierto."
+          );
         }
       }, 8000);
     } catch (error) {

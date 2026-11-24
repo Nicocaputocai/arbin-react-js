@@ -40,22 +40,20 @@ const handleInputFileChange = async (event) => {
   };
 
   };
-  const handleNativeOrWebClick = async (e) => {
-  if (Capacitor.isNativePlatform()) {
-    e.preventDefault(); // Evita abrir el <input type="file"> problemático en Android
-    try {
-      const dataUrl = await captureOrSelectPhoto();
-      if (dataUrl) {
-        setShowImage(dataUrl);       // (En ProfilePhoto: setSelectedImageProfile(dataUrl))
-        setfotoHoja(dataUrl);        // (En ProfilePhoto: setFotoPerfil(dataUrl))
-        setManualMode(false);        // (Solo en LeafPhotoPlantId)
+const handleNativeOrWebClick = async (e) => {
+    if (Capacitor.isNativePlatform()) {
+      e.preventDefault(); // Evita abrir el <input type="file"> problemático en Android
+      try {
+        const dataUrl = await captureOrSelectPhoto();
+        if (dataUrl) {
+          setSelectedImageProfile(dataUrl);
+          setFotoPerfil(dataUrl);
+        }
+      } catch (err) {
+        console.log("Captura cancelada o error:", err);
       }
-    } catch (err) {
-      // El usuario canceló la cámara, no hace falta mostrar error
-      console.log("Captura cancelada:", err);
     }
-  }
-};
+  };
 
   return (
     <Container className="text-center mt-3">
