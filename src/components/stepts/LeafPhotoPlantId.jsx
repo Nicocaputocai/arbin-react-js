@@ -1,5 +1,6 @@
 import {
   Alert,
+  Badge,
   Button,
   Card,
   Col,
@@ -15,6 +16,7 @@ import { Capacitor } from "@capacitor/core";
 import { captureOrSelectPhoto } from "../../utils/takePhoto";
 
 const NOMINATIM_BASE_URL_PLANT_ID = "https://plant.id/api/v3/identification";
+const CONFIDENCE_THRESHOLD = 0.65; // Umbral mínimo de confianza (65%)
 
 import "./style/gallery.css";
 
@@ -29,6 +31,8 @@ export const LeafPhotoPlantId = (props) => {
     setNeedsReview,
     observations,
     setObservations,
+    selectPosition,
+    position,
   } = props;
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -37,6 +41,7 @@ export const LeafPhotoPlantId = (props) => {
   const [showImage, setShowImage] = useState(fotoHoja || null);
   const [manualMode, setManualMode] = useState(false);
   const [manualSpecies, setManualSpecies] = useState("");
+  const [confidenceScore, setConfidenceScore] = useState(null);
 
   const API_KEY = import.meta.env.VITE_KEY_PLANT_ID;
 
@@ -52,6 +57,7 @@ export const LeafPhotoPlantId = (props) => {
 
     setSelectedImage(file);
     setManualMode(false);
+    setConfidenceScore(null);
 
     try {
       const compressedDataUrl = await compressImageFile(file);
@@ -66,6 +72,7 @@ export const LeafPhotoPlantId = (props) => {
   const handleEnableManualMode = () => {
     setManualMode(true);
     setListPlace([]);
+    setConfidenceScore(null);
     setNeedsReview(true);
     const label = manualSpecies.trim() || "Sin identificar";
     setCheckbox(["manual", label, label]);
@@ -78,15 +85,49 @@ export const LeafPhotoPlantId = (props) => {
     setCheckbox(["manual", label, label]);
   };
 
+  const [plantIdError, setPlantIdError] = useState(false);
+
+  const handleContinueWithoutPlantId = () => {
+    setPlantIdError(false);
+    setNeedsReview(true);
+    setCheckbox([
+      "offline-photo",
+      "Pendiente de identificación",
+      "Sin identificar",
+    ]);
+    setObservations((prev) => {
+      const note =
+        "[Foto de hoja adjunta - Identificación pendiente por falta de conexión]";
+      const current = (prev || "").trim();
+      return current.includes(note)
+        ? current
+        : current
+        ? `${current}\n${note}`
+        : note;
+    });
+  };
+
   const handleSearchPlantId = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setConfidenceScore(null);
 
     try {
       const base64Image = showImage.split(",")[1] || showImage;
 
+      // Obtenemos coordenadas desde position o selectPosition si están disponibles
+      const lat = position?.lat ?? selectPosition?.lat;
+      const lon = position?.lng ?? selectPosition?.lon;
+
       const bodyIdent = {
         images: [base64Image],
+        ...(lat && lon
+          ? {
+              latitude: Number(lat),
+              longitude: Number(lon),
+            }
+          : {}),
+        datetime: new Date().toISOString().split("T")[0],
         similar_images: true,
       };
 
@@ -106,6 +147,8 @@ export const LeafPhotoPlantId = (props) => {
       if (suggestions && suggestions.length > 0) {
         const suggestion = suggestions[0];
         const sciName = suggestion.name;
+        const probability = Number(suggestion.probability ?? 0);
+        const pct = Math.round(probability * 100);
         const access_token = resultIdent.access_token;
 
         let commonName = sciName;
@@ -138,33 +181,51 @@ export const LeafPhotoPlantId = (props) => {
         const id = suggestion.id || "0";
         const photo = suggestion.similar_images?.[0]?.url || "";
 
+        setConfidenceScore(pct);
         setManualMode(false);
         setListPlace([id, commonName, photo]);
         setCheckbox([id, commonName, sciName]);
+
+        // Si la certeza de la IA es baja (< 65%), marcamos revisión manual y agregamos nota automática
+        if (probability < CONFIDENCE_THRESHOLD) {
+          setNeedsReview(true);
+          const autoNote = `[IA baja certeza: ${pct}% - Requiere verificación manual]`;
+          setObservations((prev) => {
+            const current = (prev || "").trim();
+            if (current.includes("[IA baja certeza:")) {
+              return current.replace(/\[IA baja certeza:.*?\]/, autoNote);
+            }
+            return current ? `${current}\n${autoNote}` : autoNote;
+          });
+        }
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Error en la identificación: " + error.message);
+      console.error("Error Plant.id:", error);
+      setPlantIdError(true);
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleNativeOrWebClick = async (e) => {
-  if (Capacitor.isNativePlatform()) {
-    e.preventDefault(); // Evita abrir el <input type="file"> problemático en Android
-    try {
-      const dataUrl = await captureOrSelectPhoto();
-      if (dataUrl) {
-        setShowImage(dataUrl);       // (En ProfilePhoto: setSelectedImageProfile(dataUrl))
-        setfotoHoja(dataUrl);        // (En ProfilePhoto: setFotoPerfil(dataUrl))
-        setManualMode(false);        // (Solo en LeafPhotoPlantId)
+    if (Capacitor.isNativePlatform()) {
+      e.preventDefault();
+      try {
+        const dataUrl = await captureOrSelectPhoto();
+        if (dataUrl) {
+          setShowImage(dataUrl);
+          setfotoHoja(dataUrl);
+          setManualMode(false);
+          setConfidenceScore(null);
+        }
+      } catch (err) {
+        console.log("Captura cancelada:", err);
       }
-    } catch (err) {
-      // El usuario canceló la cámara, no hace falta mostrar error
-      console.log("Captura cancelada:", err);
     }
-  }
-};
+  };
+
+  const isLowConfidence =
+    confidenceScore !== null && confidenceScore < CONFIDENCE_THRESHOLD * 100;
 
   return (
     <Container className="text-center mt-3 mb-4">
@@ -182,6 +243,26 @@ export const LeafPhotoPlantId = (props) => {
             onChange={handleInputFileChange}
             style={{ display: "none" }}
           />
+
+          {plantIdError && (
+            <Alert variant="warning" className="text-start mt-3 mb-0">
+              <div className="fw-bold mb-1">
+                📡 No se pudo conectar con el identificador automático
+              </div>
+              <p className="small mb-2">
+                Podés continuar igual: la foto de la hoja quedará guardada para
+                identificarla luego desde el panel.
+              </p>
+              <Button
+                variant="warning"
+                size="sm"
+                className="fw-bold w-100"
+                onClick={handleContinueWithoutPlantId}
+              >
+                ➡️ Continuar con foto guardada (revisión manual)
+              </Button>
+            </Alert>
+          )}
 
           <label
             htmlFor="hojaInput"
@@ -321,15 +402,30 @@ export const LeafPhotoPlantId = (props) => {
             <div
               className="p-4 shadow mb-3"
               style={{
-                backgroundColor: "#198754",
+                backgroundColor: isLowConfidence ? "#b45309" : "#198754",
                 borderRadius: "20px",
                 color: "white",
               }}
             >
-              <h5 className="mb-1" style={{ opacity: 0.9 }}>
-                ¡Árbol identificado!
-              </h5>
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <h5 className="mb-0" style={{ opacity: 0.9 }}>
+                  {isLowConfidence
+                    ? "Posible coincidencia"
+                    : "¡Árbol identificado!"}
+                </h5>
+                {confidenceScore !== null && (
+                  <Badge
+                    bg={isLowConfidence ? "warning" : "light"}
+                    text="dark"
+                    className="px-2 py-1"
+                  >
+                    Certeza: {confidenceScore}%
+                  </Badge>
+                )}
+              </div>
+
               <h2 className="fw-bold my-2">{listPlace[1]}</h2>
+
               {listPlace[2] && (
                 <Image
                   src={listPlace[2]}
@@ -345,6 +441,16 @@ export const LeafPhotoPlantId = (props) => {
                 />
               )}
             </div>
+
+            {isLowConfidence && (
+              <Alert variant="warning" className="text-start small mb-3">
+                ⚠️{" "}
+                <strong>Baja certeza del modelo ({confidenceScore}%):</strong>{" "}
+                Se activó automáticamente la marca de revisión manual y se
+                agregó una nota en las observaciones para su verificación
+                posterior.
+              </Alert>
+            )}
 
             {/* BLOQUE DE DUDA SOBRE LA IA Y OBSERVACIÓN */}
             <Card

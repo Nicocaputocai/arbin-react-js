@@ -13,6 +13,7 @@ import {
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
 import "./style/searchBar.css";
+import { triggerLightHaptic } from "../../utils/haptics";
 
 const NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search?";
 const NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse?";
@@ -123,6 +124,7 @@ export const Address = (props) => {
         },
       };
 
+      await triggerLightHaptic();
       setSelectPosition(placeObject);
       if (setPosition) {
         setPosition({ lat, lng });
@@ -166,7 +168,7 @@ export const Address = (props) => {
 
         if (perm.location !== "granted" && perm.coarseLocation !== "granted") {
           setGpsError(
-            "Permiso de ubicación denegado. Habilitá el GPS preciso en los ajustes de la app."
+            "Permiso de ubicación denegado. Habilitá el GPS preciso en los ajustes de la app.",
           );
           setIsLocating(false);
           return;
@@ -220,7 +222,7 @@ export const Address = (props) => {
             timeout: 15000,
             maximumAge: 0,
           },
-          onPositionUpdate
+          onPositionUpdate,
         );
       } else {
         watchIdRef.current = navigator.geolocation.watchPosition(
@@ -230,7 +232,7 @@ export const Address = (props) => {
             enableHighAccuracy: true,
             timeout: 15000,
             maximumAge: 0,
-          }
+          },
         );
       }
 
@@ -243,7 +245,7 @@ export const Address = (props) => {
         } else if (watchIdRef.current !== null) {
           await stopWatching();
           setGpsError(
-            "No se recibió señal GPS. Verificá que la Ubicación del teléfono esté encendida y probá a cielo abierto."
+            "No se recibió señal GPS. Verificá que la Ubicación del teléfono esté encendida y probá a cielo abierto.",
           );
         }
       }, 8000);
@@ -297,7 +299,10 @@ export const Address = (props) => {
       <h3 className="mb-3 text-success fw-bold">Ubicación del árbol</h3>
 
       {/* SELECTOR DE MODO */}
-      <ButtonGroup className="mb-4 shadow-sm w-100" style={{ maxWidth: "420px" }}>
+      <ButtonGroup
+        className="mb-4 shadow-sm w-100"
+        style={{ maxWidth: "420px" }}
+      >
         <Button
           variant={mode === "gps" ? "success" : "outline-success"}
           onClick={() => {

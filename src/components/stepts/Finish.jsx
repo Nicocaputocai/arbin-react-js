@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import CensusTreesServices from "../../Services/CensusTreeService";
 import {
+  Alert,
   Badge,
   Button,
   Form,
@@ -11,6 +12,24 @@ import {
   Container,
   Spinner,
 } from "react-bootstrap";
+import {
+  saveTreeOffline,
+  getPendingTrees,
+  removePendingTree,
+} from "../../utils/offlineQueue";
+
+const dataURLtoFile = (dataUrl, filename) => {
+  if (!dataUrl) return null;
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
 
 export const Finish = (props) => {
   const {
@@ -30,6 +49,9 @@ export const Finish = (props) => {
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [savedOffline, setSavedOffline] = useState(false);
 
   const street = selectPosition?.address?.road || "";
   const houseNumber = selectPosition?.address?.house_number || "";
@@ -62,19 +84,6 @@ export const Finish = (props) => {
   });
 
   useEffect(() => {
-    const dataURLtoFile = (dataUrl, filename) => {
-      if (!dataUrl) return null;
-      const arr = dataUrl.split(",");
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      return new File([u8arr], filename, { type: mime });
-    };
-
     setImagesConverter({
       leafImg: fotoHoja ? dataURLtoFile(fotoHoja, "leafImage.jpg") : null,
       profileImg: fotoPerfil
@@ -102,6 +111,58 @@ export const Finish = (props) => {
   const [submitted, setSubmitted] = useState(false);
   const [savedSeconds, setSavedSeconds] = useState(0);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  // Actualizar contador y sincronizar árboles guardados offline cuando vuelve la señal
+  const refreshPendingCount = useCallback(async () => {
+    try {
+      const list = await getPendingTrees();
+      setPendingCount(list.length);
+    } catch (e) {
+      console.warn("No se pudo leer la cola offline:", e);
+    }
+  }, []);
+
+  const syncPendingTrees = useCallback(async () => {
+    if (!navigator.onLine || isSyncing) return;
+    try {
+      const list = await getPendingTrees();
+      if (list.length === 0) return;
+
+      setIsSyncing(true);
+      for (const item of list) {
+        try {
+          const fd = new FormData();
+          Object.keys(item.fields).forEach((key) => {
+            if (item.fields[key] !== null && item.fields[key] !== undefined) {
+              fd.append(key, item.fields[key]);
+            }
+          });
+          if (item.fotoHojaDataUrl) {
+            fd.append("leafImg", dataURLtoFile(item.fotoHojaDataUrl, "leafImage.jpg"));
+          }
+          if (item.fotoPerfilDataUrl) {
+            fd.append("profileImg", dataURLtoFile(item.fotoPerfilDataUrl, "profileImage.jpg"));
+          }
+
+          await CensusTreesServices.createCensusTrees(fd);
+          await removePendingTree(item.offlineId);
+        } catch (err) {
+          console.warn("Aún sin conexión estable para sincronizar:", err);
+          break;
+        }
+      }
+    } finally {
+      await refreshPendingCount();
+      setIsSyncing(false);
+    }
+  }, [isSyncing, refreshPendingCount]);
+
+  useEffect(() => {
+    refreshPendingCount();
+    syncPendingTrees();
+    window.addEventListener("online", syncPendingTrees);
+    return () => window.removeEventListener("online", syncPendingTrees);
+  }, [refreshPendingCount, syncPendingTrees]);
 
   useEffect(() => {
     setFormState((prev) => ({
@@ -153,10 +214,11 @@ export const Finish = (props) => {
     handleFormValidityChange(isValid);
   }, [formState]);
 
-  const save = (e) => {
+  const save = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
+    setSavedOffline(false);
 
     const elapsedSeconds = startTime
       ? Math.max(1, Math.round((Date.now() - startTime) / 1000))
@@ -170,28 +232,79 @@ export const Finish = (props) => {
     });
     formData.append("loadTimeSeconds", elapsedSeconds);
 
-    CensusTreesServices.createCensusTrees(formData)
-      .then(() => {
-        setSavedSeconds(elapsedSeconds);
-        setSubmitted(true);
-        if (onSuccess) onSuccess();
-      })
-      .catch((err) => {
-        console.error("Error al guardar en MongoDB:", err);
-        const errorMsg =
-          err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message ||
-          "Error de conexión con el servidor";
-        setErrorMessage(`Error al enviar: ${errorMsg}`);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      await CensusTreesServices.createCensusTrees(formData);
+      setSavedSeconds(elapsedSeconds);
+      setSubmitted(true);
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error("Error al guardar en MongoDB:", err);
+
+      // Si no hay conexión o falló la red (sin respuesta del servidor), guardamos localmente en IndexedDB
+      const isNetworkFailure =
+        !navigator.onLine ||
+        !err.response ||
+        err.code === "ERR_NETWORK" ||
+        err.message?.includes("Network Error") ||
+        err.message?.includes("Failed to fetch");
+
+      if (isNetworkFailure) {
+        try {
+          const { leafImg, profileImg, ...serializableFields } = formState;
+          await saveTreeOffline({
+            fields: {
+              ...serializableFields,
+              loadTimeSeconds: elapsedSeconds,
+            },
+            fotoHojaDataUrl: fotoHoja || null,
+            fotoPerfilDataUrl: fotoPerfil || null,
+          });
+          await refreshPendingCount();
+          setSavedSeconds(elapsedSeconds);
+          setSavedOffline(true);
+          setSubmitted(true);
+          if (onSuccess) onSuccess();
+          return;
+        } catch (offlineErr) {
+          console.error("Error guardando offline:", offlineErr);
+        }
+      }
+
+      const errorMsg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        "Error de conexión con el servidor";
+      setErrorMessage(`Error al enviar: ${errorMsg}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Container className="mt-2 mb-5">
+      {/* BANNER DE REGISTROS PENDIENTES EN COLA OFFLINE */}
+      {pendingCount > 0 && (
+        <Alert
+          variant="info"
+          className="d-flex justify-content-between align-items-center py-2 mb-3 shadow-sm"
+        >
+          <span className="small fw-bold">
+            📦 {pendingCount}{" "}
+            {pendingCount === 1 ? "árbol pendiente" : "árboles pendientes"} de
+            sincronizar
+          </span>
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={isSyncing}
+            onClick={syncPendingTrees}
+          >
+            {isSyncing ? "Subiendo..." : "Sincronizar"}
+          </Button>
+        </Alert>
+      )}
+
       {submitted ? (
         <div
           className="modal show"
@@ -199,10 +312,25 @@ export const Finish = (props) => {
         >
           <Modal.Dialog centered>
             <Modal.Body className="text-center p-4">
-              <h4 className="text-success fw-bold mb-2">¡Excelente!</h4>
-              <p className="mb-2">
-                Árbol registrado correctamente en el sistema Arbin.
-              </p>
+              {savedOffline ? (
+                <>
+                  <h4 className="text-warning fw-bold mb-2">
+                    📦 Guardado sin conexión
+                  </h4>
+                  <p className="mb-2 small">
+                    No había señal de internet. El árbol y sus fotos quedaron
+                    guardados en el teléfono y se subirán automáticamente
+                    apenas vuelva la conexión.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h4 className="text-success fw-bold mb-2">¡Excelente!</h4>
+                  <p className="mb-2">
+                    Árbol registrado correctamente en el sistema Arbin.
+                  </p>
+                </>
+              )}
               <Badge bg="light" text="dark" className="border px-3 py-2">
                 ⏱️ Tiempo de relevamiento: {savedSeconds} segundos
               </Badge>

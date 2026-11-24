@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+// Capacitor nativo
+import { Capacitor } from "@capacitor/core";
+import { KeepAwake } from "@capacitor-community/keep-awake";
+import { triggerSuccessHaptic } from "./utils/haptics";
 
 // Componentes del Stepper
 import { Stepper } from "./components/Stepper";
@@ -55,6 +60,19 @@ function App() {
     !!localStorage.getItem("token")
   );
 
+  // Mantener pantalla encendida en Android/iOS mientras el censista está logueado
+  useEffect(() => {
+    if (!isAuthenticated || !Capacitor.isNativePlatform()) return;
+
+    KeepAwake.keepAwake().catch((err) =>
+      console.warn("No se pudo activar KeepAwake:", err)
+    );
+
+    return () => {
+      KeepAwake.allowSleep().catch(() => {});
+    };
+  }, [isAuthenticated]);
+
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
     setStartTime(Date.now());
@@ -77,7 +95,7 @@ function App() {
     setIsFinalized(false);
     setFormValid(false);
     setCurrentStep(1);
-    setStartTime(Date.now()); // Reiniciamos el cronómetro para el próximo árbol
+    setStartTime(Date.now());
 
     localStorage.removeItem("selectedImageProfile");
     localStorage.removeItem("selectedImageLeaf");
@@ -140,6 +158,8 @@ function App() {
             setNeedsReview={setNeedsReview}
             observations={observations}
             setObservations={setObservations}
+            selectPosition={selectPosition}
+            position={position}
           />
         );
       case 4:
@@ -150,7 +170,7 @@ function App() {
             setFotoPerfil={setFotoPerfil}
           />
         );
-case 5:
+      case 5:
         return (
           <TreeCondition
             treeDetails={treeDetails}
@@ -174,7 +194,10 @@ case 5:
             handleFormValidityChange={handleFormValidityChange}
             formValid={formValid}
             createdBy={localStorage.getItem("username") || "Sin registro"}
-            onSuccess={() => setIsFinalized(true)}
+            onSuccess={async () => {
+              await triggerSuccessHaptic();
+              setIsFinalized(true);
+            }}
             onReset={handleReset}
           />
         );
